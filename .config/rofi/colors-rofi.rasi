@@ -1,0 +1,9 @@
+/* colors-rofi.rasi — fallback, overwritten by Matugen */
+* {
+  bg: #0e0e11;
+  surface: #16161aff;
+  border: #2e2e36ff;
+  fg: #e6e6ebff;
+  muted: #9a9aa3ff;
+  accent: #7aa2f7ff;
+}

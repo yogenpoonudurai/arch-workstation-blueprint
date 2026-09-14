@@ -1,0 +1,5 @@
+[config]
+reload_apps = false
+reload_apps_list = []
+set_wallpaper = false
+wallpaper_tool = "Hyprpaper"

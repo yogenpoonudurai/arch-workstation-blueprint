@@ -1,0 +1,13 @@
+*.bak-*
+*.bak-20*
+config.jsonc.bak-*
+style.css.bak-*
+**/lazy-lock.json
+**/.DS_Store
+Pictures/
+Wallpapers/
+nvim/.neoconf.json
+nvim/lazy-lock.json
+.local/share/
+.local/state/
+.cache/

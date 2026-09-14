@@ -1,0 +1,33 @@
+@import "colors-rofi.rasi"
+
+* {
+  font: "JetBrainsMono Nerd Font 11";
+}
+window {
+  background-color: @surface;
+  border: 1px;
+  border-color: @border;
+  border-radius: 12px;
+  width: 480px;
+  padding: 12px;
+}
+mainbox { background-color: transparent; spacing: 8px; }
+inputbar {
+  background-color: transparent;
+  border: 1px; border-color: @border; border-radius: 8px;
+  padding: 8px;
+}
+prompt { text-color: @muted; }
+entry { text-color: @fg; placeholder: "Search…"; placeholder-color: @muted; }
+listview { background-color: transparent; lines: 10; columns: 1; spacing: 4px; }
+element {
+  background-color: transparent;
+  text-color: @fg;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+element selected {
+  background-color: @accent;
+  text-color: @bg;
+}
+element-text, element-icon { background-color: transparent; }

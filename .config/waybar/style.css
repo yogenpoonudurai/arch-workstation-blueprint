@@ -1,0 +1,60 @@
+@import url("colors-waybar.css");
+
+* {
+  font-family: "JetBrainsMono Nerd Font", "Noto Sans", sans-serif;
+  font-size: 13px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: transparent;
+  color: @fg;
+}
+
+.modules-left, .modules-center, .modules-right {
+  background: alpha(@surface, 0.85);
+  border: 1px solid alpha(@border, 0.8);
+  border-radius: 11px;
+  padding: 2px 10px;
+  margin: 0 4px;
+}
+
+#custom-arch {
+  font-size: 16px;
+  color: @accent;
+  padding-right: 8px;
+}
+
+#workspaces button {
+  color: @muted;
+  background: transparent;
+  border-radius: 8px;
+  padding: 0 8px;
+  margin: 2px;
+}
+#workspaces button.active {
+  color: @bg;
+  background: @accent;
+}
+#workspaces button:hover {
+  color: @fg;
+  background: alpha(@accent, 0.25);
+}
+
+#window {
+  color: @fg;
+  font-weight: 500;
+}
+
+#custom-notification, #network, #bluetooth, #pulseaudio, #battery, #clock {
+  color: @fg;
+  padding: 0 8px;
+  margin: 0 2px;
+}
+#bluetooth.off, #bluetooth.disabled { color: @muted; }
+#bluetooth.connected { color: @accent; }
+#clock {
+  font-weight: 600;
+}
+#battery.warning { color: #e5c07b; }
+#battery.critical { color: #e06c75; }

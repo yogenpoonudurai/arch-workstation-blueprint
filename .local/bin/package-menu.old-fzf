@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefall
+
+pkg="$(
+  pacman -Slq |
+  sort -u |
+  fzf \
+    --height=100% \
+    --border \
+    --prompt='Install package > '
+)"
+
+[[ -z "$pkg" ]] && exit 0
+
+sudo pacman -S --needed "$pkg"

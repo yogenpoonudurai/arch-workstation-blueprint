@@ -1,0 +1,80 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 36,
+  "spacing": 8,
+  "margin-top": 8,
+  "margin-left": 10,
+  "margin-right": 10,
+
+  "modules-left": ["custom/arch", "hyprland/workspaces"],
+  "modules-center": ["hyprland/window"],
+  "modules-right": ["custom/notification", "network", "bluetooth", "pulseaudio", "battery", "clock"],
+
+  "custom/arch": {
+    "format": "",
+    "on-click": "uwsm app -- hyprlauncher --toggle",
+    "on-click-right": "uwsm app -- arch-menu",
+    "tooltip": false
+  },
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "default": "•"
+    },
+    "persistent-workspaces": {},
+    "on-click": "activate"
+  },
+  "hyprland/window": {
+    "format": "{}",
+    "max-length": 60,
+    "separate-outputs": true
+  },
+  "custom/notification": {
+    "format": " {}",
+    "exec": "swaync-client -c 2>/dev/null || echo '0'",
+    "on-click": "swaync-client -t -sw",
+    "interval": 5,
+    "tooltip": false
+  },
+  "network": {
+    "format-wifi": " {signalStrength}%",
+    "format-ethernet": "󰈀 {ifname}",
+    "format-disconnected": "󰖪 Disconnected",
+    "tooltip-format": "{ifname}: {ipaddr}",
+    "on-click": "uwsm app -- alacritty -e nmtui"
+  },
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "󰂲",
+    "format-off": "󰂲",
+    "format-on": "",
+    "format-connected": " {device_alias}",
+    "tooltip-format": "{controller_alias}\t{status}",
+    "tooltip-format-connected": "{device_alias}\t{status}",
+    "on-click": "uwsm app -- blueman-manager",
+    "on-click-right": "uwsm app -- alacritty -e bluetoothctl"
+  },
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰝟 Muted",
+    "format-icons": { "default": ["", "", ""] },
+    "on-click": "uwsm app -- alacritty -e pulsemixer || uwsm app -- alacritty -e alsamixer",
+    "scroll-step": 5
+  },
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "format-icons": ["", "", "", "", ""],
+    "format-charging": "󰂄 {capacity}%",
+    "states": { "warning": 30, "critical": 15 }
+  },
+  "clock": {
+    "format": "{:%a %d %b %H:%M}",
+    "tooltip-format": "{:%Y-%m-%d %H:%M}"
+  }
+}

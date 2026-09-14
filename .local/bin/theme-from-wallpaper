@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+# theme-from-wallpaper <path> — wallpaper -> Matugen -> Waybar/Rofi/SwayNC/Hyprland/Alacritty
+set -euo pipefail
+
+SRC="${1:-}"
+WALL_DIR="$HOME/Pictures/Wallpapers"
+CURRENT="$WALL_DIR/current.jpg"
+THEME_DIR="$HOME/.config/theme"
+mkdir -p "$WALL_DIR" "$THEME_DIR"
+
+if [ -z "$SRC" ]; then
+  echo "Usage: theme-from-wallpaper <path-to-image>" >&2
+  exit 1
+fi
+if [ ! -f "$SRC" ]; then
+  echo "Not found: $SRC" >&2
+  exit 1
+fi
+
+cp -- "$SRC" "$CURRENT"
+
+# 1. Matugen palette (best-effort; fallback palette kept on failure)
+if command -v matugen >/dev/null 2>&1; then
+  matugen image "$CURRENT" --mode dark || echo "matugen failed, using fallback palette" >&2
+else
+  echo "matugen not installed, using fallback palette" >&2
+fi
+
+# 2. Generate our fragments from matugen JSON if present, else fallback
+python3 - "$CURRENT" <<'PY'
+import json, os, sys
+from pathlib import Path
+home = Path(os.environ["HOME"])
+theme = home / ".config/theme"
+# Try known matugen output locations
+candidates = [
+    home / ".config/matugen/colors.json",
+    home / ".local/share/matugen/colors.json",
+]
+data = None
+for c in candidates:
+    if c.exists():
+        try:
+            data = json.loads(c.read_text())
+            break
+        except Exception:
+            pass
+# matugen schema varies; try common keys
+def pick(*keys, default=None):
+    if not isinstance(data, dict):
+        return default
+    # search nested
+    for k in keys:
+        if k in data:
+            v = data[k]
+            if isinstance(v, dict) and "default" in v:
+                return v["default"]
+            if isinstance(v, str):
+                return v
+    # colors.dark.* scheme
+    try:
+        colors = data.get("colors", {}).get("dark", {})
+        for k in keys:
+            if k in colors:
+                return colors[k]
+    except Exception:
+        pass
+    return default
+
+accent = pick("primary", "primary_container", default="#7aa2f7")
+bg = pick("background", default="#0e0e11")
+surface = pick("surface", "surface_container", default="#16161a")
+fg = pick("on_background", "on_surface", default="#e6e6eb")
+muted = pick("outline", "on_surface_variant", default="#9a9aa3")
+
+def hex_to_rgba(h, alpha="ff"):
+    h = h.strip().lstrip("#")
+    if len(h) == 6:
+        return f"rgba({h}{alpha})"
+    return f"rgba({h})" if len(h) == 8 else f"#{h}"
+
+# Normalize to #rrggbb
+def norm(h, fb):
+    h = (h or fb).strip()
+    if not h.startswith("#"):
+        return fb
+    if len(h) == 9:
+        h = h[:7]
+    return h
+
+accent = norm(accent, "#7aa2f7"); bg = norm(bg, "#0e0e11")
+surface = norm(surface, "#16161a"); fg = norm(fg, "#e6e6eb"); muted = norm(muted, "#9a9aa3")
+border = "#2e2e36"
+
+(theme / "colors-waybar.css").write_text(
+f"""@define-color bg {bg};
+@define-color surface {surface};
+@define-color border {border};
+@define-color fg {fg};
+@define-color muted {muted};
+@define-color accent {accent};
+""")
+(home / ".config/waybar/colors-waybar.css").write_text((theme / "colors-waybar.css").read_text())
+
+(home / ".config/rofi/colors-rofi.rasi").write_text(
+f"""* {{
+  bg: {bg};
+  surface: {surface}ff;
+  border: {border}ff;
+  fg: {fg}ff;
+  muted: {muted}ff;
+  accent: {accent}ff;
+}}
+""")
+(theme / "colors-rofi.rasi").write_text((home / ".config/rofi/colors-rofi.rasi").read_text())
+
+(home / ".config/swaync/colors-swaync.css").write_text(
+f"""@define-color bg {bg};
+@define-color surface {surface};
+@define-color border {border};
+@define-color fg {fg};
+@define-color muted {muted};
+@define-color accent {accent};
+""")
+(theme / "colors-swaync.css").write_text((home / ".config/swaync/colors-swaync.css").read_text())
+
+(home / ".config/hypr/colors-hypr.lua").write_text(
+f"""return {{
+  bg = "{hex_to_rgba(bg)}",
+  surface = "{hex_to_rgba(surface)}",
+  border = "{hex_to_rgba(border)}",
+  fg = "{hex_to_rgba(fg)}",
+  muted = "{hex_to_rgba(muted)}",
+  active1 = "{hex_to_rgba(accent, 'ee')}",
+  active2 = "{hex_to_rgba(accent, 'ee')}",
+  inactive = "rgba(595959aa)",
+}}
+""")
+(theme / "colors-hypr.lua").write_text((home / ".config/hypr/colors-hypr.lua").read_text())
+
+(home / ".config/alacritty/colors-alacritty.toml").write_text(
+f"""[colors.primary]
+background = "{bg}"
+foreground = "{fg}"
+[colors.normal]
+black = "{surface}"
+red = "#e06c75"
+green = "#98c379"
+yellow = "#e5c07b"
+blue = "{accent}"
+magenta = "#bb9af7"
+cyan = "#56b6c2"
+white = "#a9a9b3"
+[colors.bright]
+black = "{muted}"
+red = "#e06c75"
+green = "#98c379"
+yellow = "#e5c07b"
+blue = "{accent}"
+magenta = "#bb9af7"
+cyan = "#56b6c2"
+white = "{fg}"
+""")
+(theme / "colors-alacritty.toml").write_text((home / ".config/alacritty/colors-alacritty.toml").read_text())
+print(f"theme generated: accent={accent} bg={bg}")
+PY
+
+# 3. Reload UI where practical (no logout)
+hyprctl reload >/dev/null 2>&1 || true
+pkill -SIGUSR2 waybar 2>/dev/null || (pkill waybar 2>/dev/null; uwsm app -- waybar >/dev/null 2>&1 &) || true
+swaync-client -rs 2>/dev/null || true
+hyprctl hyprpaper preload "$CURRENT" >/dev/null 2>&1 || true
+hyprctl hyprpaper wallpaper ",$CURRENT" >/dev/null 2>&1 || true
+echo "Theme applied from $SRC"

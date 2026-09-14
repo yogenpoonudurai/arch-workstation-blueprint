@@ -1,0 +1,15 @@
+@import url("colors-swaync.css");
+
+* {
+  font-family: "JetBrainsMono Nerd Font", "Noto Sans", sans-serif;
+  font-size: 13px;
+}
+.notification, .control-center {
+  background: alpha(@surface, 0.95);
+  border: 1px solid @border;
+  border-radius: 12px;
+  color: @fg;
+}
+.notification-content { color: @fg; }
+.summary { font-weight: 600; color: @fg; }
+.time { color: @muted; }
