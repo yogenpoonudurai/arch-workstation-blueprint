@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # arch-menu — Arch control menu (Rofi). Says "Arch" only, not a distro.
 set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
 
 CHOICE="$(printf '%s\n' \
   "Install Package" \

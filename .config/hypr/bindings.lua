@@ -7,15 +7,15 @@ local mod = "SUPER"
 -- Core: terminal / close / launchers (required minimum)
 hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd("uwsm app -- alacritty"))
 hl.bind(mod .. " + Q", hl.dsp.window.close())
-hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("uwsm app -- unified-launcher"))
-hl.bind(mod .. " + SHIFT + SPACE", hl.dsp.exec_cmd("uwsm app -- arch-menu"))
+hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/unified-launcher"))
+hl.bind(mod .. " + SHIFT + SPACE", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/arch-menu"))
 
 -- Custom UX
-hl.bind(mod .. " + P", hl.dsp.exec_cmd("uwsm app -- package-install"))
+hl.bind(mod .. " + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/package-install"))
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
-hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("uwsm app -- power-menu"))
+hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/power-menu"))
 hl.bind(mod .. " + L", hl.dsp.exec_cmd("uwsm app -- hyprlock"))
-hl.bind(mod .. " + D", hl.dsp.exec_cmd("uwsm app -- monitor-menu"))
+hl.bind(mod .. " + D", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/monitor-menu"))
 
 -- File manager (keep simple; thunar/nautilus optional — fallback to alacritty)
 hl.bind(mod .. " + E", hl.dsp.exec_cmd("uwsm app -- alacritty"))

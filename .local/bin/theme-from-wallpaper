@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # theme-from-wallpaper <path> — wallpaper -> Matugen -> Waybar/Rofi/SwayNC/Hyprland/Alacritty
 set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
 
 SRC="${1:-}"
 WALL_DIR="$HOME/Pictures/Wallpapers"

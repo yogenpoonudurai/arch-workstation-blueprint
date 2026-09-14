@@ -3,6 +3,7 @@
 # Primary picker: hyprlauncher --dmenu (verified 0.1.6 flags); fallback: rofi -dmenu.
 # Safe: fixed action allowlist, desktop IDs validated, no eval.
 set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
 
 PICKER="${UNIFIED_PICKER:-auto}"  # auto | hyprlauncher | rofi
 

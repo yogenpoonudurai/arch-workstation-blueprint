@@ -2,6 +2,7 @@
 # package-install — Rofi graphical installer, official repos only, no AUR.
 # Shows "package-name<TAB>description", fuzzy search, opens Alacritty for pacman confirm.
 set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
 
 list_pkgs() {
   if command -v expac >/dev/null 2>&1; then

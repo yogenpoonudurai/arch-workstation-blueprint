@@ -2,6 +2,7 @@
 # monitor-menu — single Display menu: layout / orientation / night light / brightness
 # Live-applies via hyprctl; persists layout choice as commented hint (monitors.lua stays safe fallback).
 set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
 
 THEME="${ROFI_THEME:-$HOME/.config/rofi/monitor.rasi}"
 FOCUSED="$(hyprctl monitors -j 2>/dev/null | python3 -c 'import json,sys; ms=json.load(sys.stdin); print(next((m["name"] for m in ms if m.get("focused")), ms[0]["name"] if ms else "eDP-1"))' 2>/dev/null || echo eDP-1)"

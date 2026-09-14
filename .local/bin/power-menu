@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # power-menu — Rofi power menu, UWSM-aware logout.
 set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
 
 CHOICE="$(printf '%s\n' "Lock" "Suspend" "Logout" "Reboot" "Shutdown" \
   | rofi -dmenu -i -p "Power" -theme "${ROFI_THEME:-$HOME/.config/rofi/power.rasi}" || true)"

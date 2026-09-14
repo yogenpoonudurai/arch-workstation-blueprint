@@ -13,8 +13,8 @@
 
   "custom/arch": {
     "format": "",
-    "on-click": "uwsm app -- unified-launcher",
-    "on-click-right": "uwsm app -- arch-menu",
+    "on-click": "uwsm app -- /home/yp/.local/bin/unified-launcher",
+    "on-click-right": "uwsm app -- /home/yp/.local/bin/arch-menu",
     "tooltip": false
   },
   "hyprland/workspaces": {
@@ -74,8 +74,8 @@
     "format-charging": "󰂄 {capacity}",
     "tooltip-format": "Power: {capacity}% — click for profiles",
     "states": { "warning": 30, "critical": 15 },
-    "on-click": "uwsm app -- power-profiles-menu",
-    "on-click-right": "uwsm app -- power-menu"
+    "on-click": "uwsm app -- /home/yp/.local/bin/power-profiles-menu",
+    "on-click-right": "uwsm app -- /home/yp/.local/bin/power-menu"
   },
   "clock": {
     "format": "{:%H:%M}",

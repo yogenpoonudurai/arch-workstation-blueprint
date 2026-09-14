@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # package-remove — Rofi graphical remover for explicitly installed packages.
 set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
 
 list_installed() {
   if command -v expac >/dev/null 2>&1; then

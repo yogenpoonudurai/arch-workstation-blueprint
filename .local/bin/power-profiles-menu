@@ -2,6 +2,7 @@
 # power-profiles-menu — Rofi picker for power-profiles-daemon (Asus Zenbook AMD).
 # Falls back to power-menu if PPD is missing.
 set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
 THEME="${ROFI_THEME:-$HOME/.config/rofi/power.rasi}"
 
 if ! command -v powerprofilesctl >/dev/null 2>&1; then
