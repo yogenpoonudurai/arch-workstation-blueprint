@@ -67,6 +67,12 @@ main() {
   combined="$(printf '%s\n%s' "$actions" "$apps")"
   picker="$(resolve_picker)"
   sel="$(printf '%s' "$combined" | pick_with "$picker")"
+  # Auto-fallback: hyprlauncher crashed or unavailable (e.g. no display) -> rofi
+  if [ -z "${sel:-}" ] && [ "$picker" = "hyprlauncher" ] && [ "$PICKER" = "auto" ]; then
+    if command -v rofi >/dev/null 2>&1; then
+      sel="$(printf '%s' "$combined" | pick_with rofi)"
+    fi
+  fi
   [ -z "${sel:-}" ] && exit 0
 
   case "$sel" in
