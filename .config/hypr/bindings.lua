@@ -13,6 +13,7 @@ hl.bind(mod .. " + SHIFT + SPACE", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/
 -- Custom UX
 hl.bind(mod .. " + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/package-install"))
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
+hl.bind(mod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -C -sw"))
 hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/power-menu"))
 hl.bind(mod .. " + L", hl.dsp.exec_cmd("uwsm app -- hyprlock"))
 hl.bind(mod .. " + D", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/monitor-menu"))

@@ -13,3 +13,29 @@
 .notification-content { color: @fg; }
 .summary { font-weight: 600; color: @fg; }
 .time { color: @muted; }
+
+/* Dismiss controls — were invisible against dark theme */
+.close-button,
+.notification-close,
+.control-center .close-button {
+  background: alpha(@muted, 0.2);
+  color: @fg;
+  border-radius: 8px;
+  min-width: 24px;
+  min-height: 24px;
+  margin: 4px;
+}
+.close-button:hover,
+.notification-close:hover,
+.control-center .close-button:hover {
+  background: @accent;
+  color: @bg;
+}
+.notification-action {
+  background: alpha(@accent, 0.15);
+  color: @fg;
+  border-radius: 8px;
+  margin: 4px 4px 0 4px;
+  padding: 6px;
+}
+.notification-action:hover { background: alpha(@accent, 0.35); }
