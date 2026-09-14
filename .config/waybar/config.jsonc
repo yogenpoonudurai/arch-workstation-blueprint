@@ -36,16 +36,16 @@
     "separate-outputs": true
   },
   "custom/notification": {
-    "format": " {}",
+    "format": "{}",
     "exec": "swaync-client -c 2>/dev/null || echo '0'",
     "on-click": "swaync-client -t -sw",
     "interval": 5,
     "tooltip": false
   },
   "network": {
-    "format-wifi": " {signalStrength}%",
-    "format-ethernet": "󰈀 {ifname}",
-    "format-disconnected": "󰖪 Disconnected",
+    "format-wifi": " {signalStrength}",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󰖪",
     "tooltip-format": "{ifname}: {ipaddr}",
     "on-click": "uwsm app -- alacritty -e nmtui"
   },
@@ -54,27 +54,28 @@
     "format-disabled": "󰂲",
     "format-off": "󰂲",
     "format-on": "",
-    "format-connected": " {device_alias}",
+    "format-connected": "",
     "tooltip-format": "{controller_alias}\t{status}",
     "tooltip-format-connected": "{device_alias}\t{status}",
     "on-click": "uwsm app -- blueman-manager",
     "on-click-right": "uwsm app -- alacritty -e bluetoothctl"
   },
   "pulseaudio": {
-    "format": "{icon} {volume}%",
-    "format-muted": "󰝟 Muted",
+    "format": "{icon} {volume}",
+    "format-muted": "󰝟",
     "format-icons": { "default": ["", "", ""] },
     "on-click": "uwsm app -- alacritty -e pulsemixer || uwsm app -- alacritty -e alsamixer",
     "scroll-step": 5
   },
   "battery": {
-    "format": "{icon} {capacity}%",
+    "format": "{icon} {capacity}",
     "format-icons": ["", "", "", "", ""],
-    "format-charging": "󰂄 {capacity}%",
+    "format-charging": "󰂄 {capacity}",
     "states": { "warning": 30, "critical": 15 }
   },
   "clock": {
-    "format": "{:%a %d %b %H:%M}",
-    "tooltip-format": "{:%Y-%m-%d %H:%M}"
+    "format": "{:%H:%M}",
+    "tooltip-format": "{:%a %d %b %H:%M}",
+    "on-click": "swaync-client -t -sw"
   }
 }
