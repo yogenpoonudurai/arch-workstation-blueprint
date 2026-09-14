@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# monitor-menu — single Display menu: layout / orientation / night light / brightness
+# Live-applies via hyprctl; persists layout choice as commented hint (monitors.lua stays safe fallback).
+set -euo pipefail
+
+THEME="${ROFI_THEME:-$HOME/.config/rofi/monitor.rasi}"
+FOCUSED="$(hyprctl monitors -j 2>/dev/null | python3 -c 'import json,sys; ms=json.load(sys.stdin); print(next((m["name"] for m in ms if m.get("focused")), ms[0]["name"] if ms else "eDP-1"))' 2>/dev/null || echo eDP-1)"
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+night_state() {
+  if pgrep -x hyprsunset >/dev/null 2>&1; then echo "Night light: ON — Turn off";
+  else echo "Night light: ON — Turn on (3500K)"; fi
+}
+
+main() {
+  local choice
+  choice="$(printf '%s\n' \
+    "Layout: Auto (preferred)" \
+    "Layout: Laptop only ($FOCUSED)" \
+    "Layout: Extend — external right" \
+    "Layout: Mirror to external" \
+    "Orientation: Normal / 90° / 180° / 270°" \
+    "$(night_state)" \
+    "Night light: Warmer (-500K)" \
+    "Night light: Cooler (+500K)" \
+    "Brightness: +10%" \
+    "Brightness: -10%" | rofi -dmenu -i -p "Display" -theme "$THEME" || true)"
+  [ -z "${choice:-}" ] && exit 0
+  case "$choice" in
+    "Layout: Auto"*)
+      hyprctl keyword monitor ",preferred,auto,auto" ;;
+    "Layout: Laptop only"*)
+      hyprctl keyword monitor "$FOCUSED,preferred,0x0,auto"
+      hyprctl keyword monitor ",disable" 2>/dev/null || true
+      hyprctl reload ;;
+    "Layout: Extend"*)
+      hyprctl keyword monitor "$FOCUSED,preferred,0x0,auto"
+      hyprctl keyword monitor ",preferred,auto-right,auto" ;;
+    "Layout: Mirror"*)
+      local ext
+      ext="$(hyprctl monitors -j 2>/dev/null | python3 -c 'import json,sys; ms=json.load(sys.stdin); print(next((m["name"] for m in ms if m["name"]!="'"$FOCUSED"'"), ""))' || true)"
+      [ -z "$ext" ] && { notify-send "Display" "No external monitor detected" || true; exit 0; }
+      hyprctl keyword monitor "$ext,preferred,0x0,auto,mirror,$FOCUSED" ;;
+    "Orientation"*)
+      local rot
+      rot="$(printf 'Normal (0)\n90° (1)\n180° (2)\n270° (3)' | rofi -dmenu -i -p "Rotate $FOCUSED" -theme "$THEME" || true)"
+      case "$rot" in
+        *"90"*)  hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,1" ;;
+        *"180"*) hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,2" ;;
+        *"270"*) hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,3" ;;
+        *)       hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,0" ;;
+      esac ;;
+    "Night light: ON — Turn on"*)
+      if have hyprsunset; then uwsm app -- hyprsunset --temperature 3500 >/dev/null 2>&1 &
+      else notify-send "Display" "hyprsunset not installed (sudo pacman -S hyprsunset)" || true; fi ;;
+    "Night light: ON — Turn off")
+      pkill -x hyprsunset || true ;;
+    "Night light: Warmer"*)
+      have hyprsunset && hyprctl hyprsunset temperature -500 2>/dev/null || notify-send "Display" "hyprsunset not running" || true ;;
+    "Night light: Cooler"*)
+      have hyprsunset && hyprctl hyprsunset temperature +500 2>/dev/null || notify-send "Display" "hyprsunset not running" || true ;;
+    "Brightness: +10%")
+      if have brightnessctl; then brightnessctl -e4 -n2 set +10%
+      elif have ddcutil; then ddcutil setvcp 10 + 10 || true; fi ;;
+    "Brightness: -10%")
+      if have brightnessctl; then brightnessctl -e4 -n2 set 10%-
+      elif have ddcutil; then ddcutil setvcp 10 - 10 || true; fi ;;
+  esac
+}
+
+main
