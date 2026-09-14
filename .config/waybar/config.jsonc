@@ -9,7 +9,7 @@
 
   "modules-left": ["custom/arch", "hyprland/workspaces"],
   "modules-center": ["hyprland/window"],
-  "modules-right": ["custom/notification", "network", "bluetooth", "pulseaudio", "battery", "clock"],
+  "modules-right": ["network", "bluetooth", "pulseaudio", "battery", "clock"],
 
   "custom/arch": {
     "format": "",
@@ -64,18 +64,22 @@
     "format": "{icon} {volume}",
     "format-muted": "󰝟",
     "format-icons": { "default": ["", "", ""] },
-    "on-click": "uwsm app -- alacritty -e pulsemixer || uwsm app -- alacritty -e alsamixer",
+    "on-click": "uwsm app -- pavucontrol || uwsm app -- helvum || uwsm app -- alacritty -e alsamixer",
+    "on-click-right": "uwsm app -- helvum || uwsm app -- pavucontrol",
     "scroll-step": 5
   },
   "battery": {
     "format": "{icon} {capacity}",
     "format-icons": ["", "", "", "", ""],
     "format-charging": "󰂄 {capacity}",
-    "states": { "warning": 30, "critical": 15 }
+    "tooltip-format": "Power: {capacity}% — click for profiles",
+    "states": { "warning": 30, "critical": 15 },
+    "on-click": "uwsm app -- power-profiles-menu",
+    "on-click-right": "uwsm app -- power-menu"
   },
   "clock": {
     "format": "{:%H:%M}",
     "tooltip-format": "{:%a %d %b %H:%M}",
-    "on-click": "swaync-client -t -sw"
+    "on-click": "uwsm app -- gsimplecal || uwsm app -- gnome-calendar || uwsm app -- alacritty -e cal -y"
   }
 }

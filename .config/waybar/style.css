@@ -46,7 +46,7 @@ window#waybar {
   font-weight: 500;
 }
 
-#custom-notification, #network, #bluetooth, #pulseaudio, #battery, #clock {
+#network, #bluetooth, #pulseaudio, #battery, #clock {
   color: @fg;
   padding: 0 8px;
   margin: 0 2px;
@@ -55,7 +55,6 @@ window#waybar {
 .modules-right {
   padding: 2px 6px;
 }
-.modules-right #custom-notification,
 .modules-right #network,
 .modules-right #bluetooth,
 .modules-right #pulseaudio,
