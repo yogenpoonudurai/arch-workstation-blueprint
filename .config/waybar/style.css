@@ -11,7 +11,7 @@ window#waybar {
   color: @fg;
 }
 
-.modules-left, .modules-center, .modules-right {
+.modules-left, .modules-right {
   background: alpha(@surface, 0.85);
   border: 1px solid alpha(@border, 0.8);
   border-radius: 11px;
@@ -39,11 +39,6 @@ window#waybar {
 #workspaces button:hover {
   color: @fg;
   background: @selection;
-}
-
-#window {
-  color: @fg;
-  font-weight: 500;
 }
 
 #network, #bluetooth, #pulseaudio, #battery, #clock {
