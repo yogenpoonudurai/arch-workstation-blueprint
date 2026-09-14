@@ -1,15 +1,15 @@
 * {
-  bg: #0e0e11ff;
+  bg: #121318ff;
   dark-bg: #0a0a0eff;
-  surface: #16161aff;
+  surface: #121318ff;
   lighter-bg: #232329ff;
   selection: #2e2e3aff;
   border: #2e2e36ff;
-  fg: #e6e6ebff;
-  dark-fg: #9a9aa3ff;
-  muted: #6b6b76ff;
-  accent: #7aa2f7ff;
-  yellow: #e5c07bff;
-  red: #e06c75ff;
-  green: #98c379ff;
+  fg: #e3e1e9ff;
+  dark-fg: #c6c5d0ff;
+  muted: #90909aff;
+  accent: #b8c3ffff;
+  yellow: #e4bad9ff;
+  red: #ffb4abff;
+  green: #c3c5ddff;
 }

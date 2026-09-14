@@ -5,8 +5,8 @@ import = ["~/.config/alacritty/colors-alacritty.toml"]
 shell = "bash"
 
 [window]
-opacity = 0.98
-padding = { x = 10, y = 10 }
+opacity = 1.0
+padding = { x = 12, y = 12 }
 decorations = "full"
 
 [font]

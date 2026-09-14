@@ -21,8 +21,10 @@ fi
 cp -- "$SRC" "$CURRENT"
 
 # 1. Matugen palette (best-effort; fallback palette kept on failure)
+#    --prefer avoids the interactive prompt when headless; -j dumps JSON we parse below.
 if command -v matugen >/dev/null 2>&1; then
-  matugen image "$CURRENT" --mode dark || echo "matugen failed, using fallback palette" >&2
+  matugen image "$CURRENT" --mode dark --prefer saturation -j hex > "$THEME_DIR/matugen.json" 2>/dev/null \
+    || echo "matugen failed, using fallback palette" >&2
 else
   echo "matugen not installed, using fallback palette" >&2
 fi
@@ -33,8 +35,9 @@ import json, os, sys
 from pathlib import Path
 home = Path(os.environ["HOME"])
 theme = home / ".config/theme"
-# Try known matugen output locations
+# matugen -j output locations (plus legacy spots)
 candidates = [
+    home / ".config/theme/matugen.json",
     home / ".config/matugen/colors.json",
     home / ".local/share/matugen/colors.json",
 ]
@@ -46,6 +49,20 @@ for c in candidates:
             break
         except Exception:
             pass
+
+def unwrap(v):
+    # matugen -j nests variants: {dark:{color}, default:{color}, light:{color}}
+    if isinstance(v, dict):
+        if isinstance(v.get("color"), str):
+            return v["color"]
+        for k in ("dark", "default", "light"):
+            if k in v:
+                r = unwrap(v[k])
+                if r:
+                    return r
+        return None
+    return v if isinstance(v, str) else None
+
 # matugen schema varies; try common keys
 def pick(*keys, default=None):
     if not isinstance(data, dict):
@@ -53,30 +70,21 @@ def pick(*keys, default=None):
     # search nested
     for k in keys:
         if k in data:
-            v = data[k]
-            if isinstance(v, dict) and "default" in v:
-                return v["default"]
-            if isinstance(v, str):
-                return v
-    # colors.dark.* scheme
+            r = unwrap(data[k])
+            if r:
+                return r
+    # colors.* scheme (flat keys, variant-nested values)
     try:
-        colors = data.get("colors", {}).get("dark", {})
-        for k in keys:
-            if k in colors:
-                return colors[k]
+        colors = data.get("colors", {})
+        if isinstance(colors, dict):
+            for k in keys:
+                if k in colors:
+                    r = unwrap(colors[k])
+                    if r:
+                        return r
     except Exception:
         pass
     return default
-
-accent = pick("primary", "primary_container", default="#7aa2f7")
-bg = pick("background", default="#0e0e11")
-surface = pick("surface", "surface_container", default="#16161a")
-fg = pick("on_background", "on_surface", default="#e6e6eb")
-muted = pick("outline", "on_surface_variant", default="#6b6b76")
-dark_fg = pick("on_surface_variant", "outline_variant", default="#9a9aa3")
-red = pick("error", default="#e06c75")
-yellow = pick("tertiary", default="#e5c07b")
-green = pick("secondary", default="#98c379")
 
 # Normalize to #rrggbb
 def norm(h, fb):
@@ -138,6 +146,6 @@ bright_magenta = "#bb9af7"
 PY
 
 theme-render
-hyprctl hyprpaper preload "$CURRENT" >/dev/null 2>&1 || true
-hyprctl hyprpaper wallpaper ",$CURRENT" >/dev/null 2>&1 || true
+# hyprpaper 0.8.x has no preload/wallpaper IPC; it reads hyprpaper.conf on start
+systemctl --user restart hyprpaper.service >/dev/null 2>&1 || uwsm app -- hyprpaper >/dev/null 2>&1 &
 echo "Theme applied from $SRC"

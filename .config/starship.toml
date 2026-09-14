@@ -2,22 +2,22 @@
 format = "$directory$git_branch$git_status$cmd_duration$line_break$character"
 
 [directory]
-style = "#7aa2f7"
+style = "#b8c3ff"
 truncation_length = 3
 truncate_to_repo = true
 
 [git_branch]
-style = "#6b6b76"
+style = "#90909a"
 format = "[$branch]($style) "
 
 [git_status]
-style = "#e5c07b"
+style = "#e4bad9"
 format = "[$all_status]($style)"
 
 [cmd_duration]
 min_time = 2000
-style = "#6b6b76"
+style = "#90909a"
 
 [character]
-success_symbol = "[❯](#7aa2f7)"
-error_symbol = "[❯](#e06c75)"
+success_symbol = "[❯](#b8c3ff)"
+error_symbol = "[❯](#ffb4ab)"

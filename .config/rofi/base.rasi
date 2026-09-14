@@ -4,7 +4,7 @@
    Layered surfaces: window > inputbar (dark-bg) > selected (selection). */
 
 * {
-  font: "JetBrainsMono Nerd Font 11";
+  font: "Noto Sans 11";
 }
 window {
   background-color: @surface;

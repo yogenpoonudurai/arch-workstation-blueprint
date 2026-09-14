@@ -1,7 +1,7 @@
 @import url("colors-swaync.css");
 
 * {
-  font-family: "JetBrainsMono Nerd Font", "Noto Sans", sans-serif;
+  font-family: "Noto Sans", "JetBrainsMono Nerd Font", sans-serif;
   font-size: 13px;
 }
 .notification, .control-center {

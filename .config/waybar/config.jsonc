@@ -19,20 +19,16 @@
   "hyprland/workspaces": {
     "format": "{icon}",
     "format-icons": {
-      "1": "1",
-      "2": "2",
-      "3": "3",
-      "4": "4",
-      "5": "5",
       "default": "•"
     },
     "persistent-workspaces": {},
     "on-click": "activate"
   },
   "network": {
-    "format-wifi": " {signalStrength}",
+    "format-wifi": "",
     "format-ethernet": "󰈀",
     "format-disconnected": "󰖪",
+    "tooltip-format-wifi": "{essid} {signalStrength}%",
     "tooltip-format": "{ifname}: {ipaddr}",
     "on-click": "uwsm app -- alacritty -e nmtui",
     "on-click-middle": "nmcli radio wifi | grep -q enabled && nmcli radio wifi off || nmcli radio wifi on"
@@ -50,18 +46,19 @@
     "on-click-middle": "bluetoothctl show 2>/dev/null | grep -q 'Powered: yes' && bluetoothctl power off || bluetoothctl power on"
   },
   "pulseaudio": {
-    "format": "{icon} {volume}",
+    "format": "{icon}",
     "format-muted": "󰝟",
     "format-icons": { "default": ["", "", ""] },
+    "tooltip-format": "{volume}%",
     "on-click": "uwsm app -- pavucontrol || uwsm app -- helvum || uwsm app -- alacritty -e alsamixer",
     "on-click-right": "uwsm app -- helvum || uwsm app -- pavucontrol",
     "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "scroll-step": 5
   },
   "battery": {
-    "format": "{icon} {capacity}",
+    "format": "{icon}",
     "format-icons": ["", "", "", "", ""],
-    "format-charging": "󰂄 {capacity}",
+    "format-charging": "󰂄",
     "tooltip-format": "Power: {capacity}% — click for profiles",
     "states": { "warning": 30, "critical": 15 },
     "on-click": "uwsm app -- /home/yp/.local/bin/power-profiles-menu",
