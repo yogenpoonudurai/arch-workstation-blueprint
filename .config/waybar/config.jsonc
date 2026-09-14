@@ -13,7 +13,7 @@
 
   "custom/arch": {
     "format": "",
-    "on-click": "uwsm app -- hyprlauncher --toggle",
+    "on-click": "uwsm app -- unified-launcher",
     "on-click-right": "uwsm app -- arch-menu",
     "tooltip": false
   },

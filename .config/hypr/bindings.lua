@@ -7,7 +7,7 @@ local mod = "SUPER"
 -- Core: terminal / close / launchers (required minimum)
 hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd("uwsm app -- alacritty"))
 hl.bind(mod .. " + Q", hl.dsp.window.close())
-hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("uwsm app -- hyprlauncher --toggle"))
+hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("uwsm app -- unified-launcher"))
 hl.bind(mod .. " + SHIFT + SPACE", hl.dsp.exec_cmd("uwsm app -- arch-menu"))
 
 -- Custom UX
