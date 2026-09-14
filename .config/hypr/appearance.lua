@@ -68,3 +68,37 @@ hl.animation({ leaf = "layersOut", enabled = true, speed = 1.5, bezier = "linear
 hl.animation({ leaf = "workspaces", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "workspacesIn", enabled = true, speed = 1.21, bezier = "almostLinear", style = "fade" })
 hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
+
+--------------------------------
+---- WINDOW RULES ----
+--------------------------------
+
+-- Ignore maximize requests from apps (verified example rule)
+hl.window_rule({
+  name = "suppress-maximize-events",
+  match = { class = ".*" },
+  suppress_event = "maximize",
+})
+
+-- Fix dragging issues with XWayland (verified example rule)
+hl.window_rule({
+  name = "fix-xwayland-drags",
+  match = {
+    class = "^$",
+    title = "^$",
+    xwayland = true,
+    float = true,
+    fullscreen = false,
+    pin = false,
+  },
+  no_focus = true,
+})
+
+-- Float + center + dim around small utility dialogs
+hl.window_rule({
+  name = "float-utility-dialogs",
+  match = { class = "pavucontrol|blueman-manager|nwg-look|gsimplecal" },
+  float = true,
+  center = true,
+  dim_around = true,
+})

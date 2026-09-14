@@ -72,7 +72,11 @@ accent = pick("primary", "primary_container", default="#7aa2f7")
 bg = pick("background", default="#0e0e11")
 surface = pick("surface", "surface_container", default="#16161a")
 fg = pick("on_background", "on_surface", default="#e6e6eb")
-muted = pick("outline", "on_surface_variant", default="#9a9aa3")
+muted = pick("outline", "on_surface_variant", default="#6b6b76")
+dark_fg = pick("on_surface_variant", "outline_variant", default="#9a9aa3")
+red = pick("error", default="#e06c75")
+yellow = pick("tertiary", default="#e5c07b")
+green = pick("secondary", default="#98c379")
 
 def hex_to_rgba(h, alpha="ff"):
     h = h.strip().lstrip("#")
@@ -90,51 +94,82 @@ def norm(h, fb):
     return h
 
 accent = norm(accent, "#7aa2f7"); bg = norm(bg, "#0e0e11")
-surface = norm(surface, "#16161a"); fg = norm(fg, "#e6e6eb"); muted = norm(muted, "#9a9aa3")
+surface = norm(surface, "#16161a"); fg = norm(fg, "#e6e6eb"); muted = norm(muted, "#6b6b76")
+dark_fg = norm(dark_fg, "#9a9aa3")
+red = norm(red, "#e06c75"); yellow = norm(yellow, "#e5c07b"); green = norm(green, "#98c379")
 border = "#2e2e36"
+dark_bg, lighter_bg, selection = "#0a0a0e", "#232329", "#2e2e3a"
 
 (theme / "colors-waybar.css").write_text(
 f"""@define-color bg {bg};
+@define-color dark_bg {dark_bg};
 @define-color surface {surface};
+@define-color lighter_bg {lighter_bg};
+@define-color selection {selection};
 @define-color border {border};
 @define-color fg {fg};
+@define-color dark_fg {dark_fg};
 @define-color muted {muted};
 @define-color accent {accent};
+@define-color yellow {yellow};
+@define-color red {red};
+@define-color green {green};
 """)
 (home / ".config/waybar/colors-waybar.css").write_text((theme / "colors-waybar.css").read_text())
 
 (home / ".config/rofi/colors-rofi.rasi").write_text(
 f"""* {{
   bg: {bg};
+  dark-bg: {dark_bg}ff;
   surface: {surface}ff;
+  lighter-bg: {lighter_bg}ff;
+  selection: {selection}ff;
   border: {border}ff;
   fg: {fg}ff;
+  dark-fg: {dark_fg}ff;
   muted: {muted}ff;
   accent: {accent}ff;
+  yellow: {yellow}ff;
+  red: {red}ff;
+  green: {green}ff;
 }}
 """)
 (theme / "colors-rofi.rasi").write_text((home / ".config/rofi/colors-rofi.rasi").read_text())
 
 (home / ".config/swaync/colors-swaync.css").write_text(
 f"""@define-color bg {bg};
+@define-color dark_bg {dark_bg};
 @define-color surface {surface};
+@define-color lighter_bg {lighter_bg};
+@define-color selection {selection};
 @define-color border {border};
 @define-color fg {fg};
+@define-color dark_fg {dark_fg};
 @define-color muted {muted};
 @define-color accent {accent};
+@define-color yellow {yellow};
+@define-color red {red};
+@define-color green {green};
 """)
 (theme / "colors-swaync.css").write_text((home / ".config/swaync/colors-swaync.css").read_text())
 
 (home / ".config/hypr/colors-hypr.lua").write_text(
 f"""return {{
   bg = "{hex_to_rgba(bg)}",
+  dark_bg = "{hex_to_rgba(dark_bg)}",
   surface = "{hex_to_rgba(surface)}",
+  lighter_bg = "{hex_to_rgba(lighter_bg)}",
+  selection = "{hex_to_rgba(selection)}",
   border = "{hex_to_rgba(border)}",
   fg = "{hex_to_rgba(fg)}",
+  dark_fg = "{hex_to_rgba(dark_fg)}",
   muted = "{hex_to_rgba(muted)}",
   active1 = "{hex_to_rgba(accent, 'ee')}",
   active2 = "{hex_to_rgba(accent, 'ee')}",
   inactive = "rgba(595959aa)",
+  yellow = "{hex_to_rgba(yellow)}",
+  red = "{hex_to_rgba(red)}",
+  green = "{hex_to_rgba(green)}",
 }}
 """)
 (theme / "colors-hypr.lua").write_text((home / ".config/hypr/colors-hypr.lua").read_text())

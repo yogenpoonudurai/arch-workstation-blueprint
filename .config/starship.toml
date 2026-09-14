@@ -1,0 +1,35 @@
+# starship — minimal, palette-synced (bg #0e0e11, accent #7aa2f7)
+format = "$directory$git_branch$git_status$cmd_duration$line_break$character"
+
+[palettes.arch]
+bg = "#0e0e11"
+surface = "#16161a"
+accent = "#7aa2f7"
+fg = "#e6e6eb"
+muted = "#6b6b76"
+yellow = "#e5c07b"
+red = "#e06c75"
+green = "#98c379"
+
+palette = "arch"
+
+[directory]
+style = "accent"
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+style = "muted"
+format = "[$branch]($style) "
+
+[git_status]
+style = "yellow"
+format = "[$all_status]($style)"
+
+[cmd_duration]
+min_time = 2000
+style = "muted"
+
+[character]
+success_symbol = "[❯](accent)"
+error_symbol = "[❯](red)"

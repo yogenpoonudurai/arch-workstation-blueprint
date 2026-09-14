@@ -28,14 +28,14 @@
 .close-button:hover,
 .notification-close:hover,
 .control-center .close-button:hover {
-  background: @accent;
-  color: @bg;
+  background: @selection;
+  color: @fg;
 }
 .notification-action {
-  background: alpha(@accent, 0.15);
+  background: @lighter_bg;
   color: @fg;
   border-radius: 8px;
   margin: 4px 4px 0 4px;
   padding: 6px;
 }
-.notification-action:hover { background: alpha(@accent, 0.35); }
+.notification-action:hover { background: @selection; }

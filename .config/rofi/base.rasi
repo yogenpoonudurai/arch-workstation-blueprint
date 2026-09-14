@@ -1,0 +1,40 @@
+@import "colors-rofi.rasi"
+
+/* Shared base — menus import this then override width/lines/prompt only.
+   Layered surfaces: window > inputbar (dark-bg) > selected (selection). */
+
+* {
+  font: "JetBrainsMono Nerd Font 11";
+}
+window {
+  background-color: @surface;
+  border: 1px;
+  border-color: @border;
+  border-radius: 14px;
+  width: 480px;
+  padding: 14px;
+}
+mainbox { background-color: transparent; spacing: 10px; }
+inputbar {
+  background-color: @dark-bg;
+  border: 1px; border-color: @border; border-radius: 10px;
+  padding: 10px 12px;
+}
+prompt { text-color: @dark-fg; }
+entry { text-color: @fg; placeholder: "Search…"; placeholder-color: @muted; }
+listview { background-color: transparent; lines: 10; columns: 1; spacing: 5px; }
+element {
+  background-color: transparent;
+  text-color: @fg;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+element selected {
+  background-color: @selection;
+  text-color: @fg;
+  border: 1px;
+  border-color: @accent;
+}
+element-icon { size: 22px; background-color: transparent; }
+element-text { background-color: transparent; }
+scrollbar { background-color: transparent; handle-color: @border; width: 6px; }

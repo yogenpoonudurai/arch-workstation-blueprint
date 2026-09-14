@@ -38,7 +38,7 @@ window#waybar {
 }
 #workspaces button:hover {
   color: @fg;
-  background: alpha(@accent, 0.25);
+  background: @selection;
 }
 
 #window {
@@ -69,5 +69,5 @@ window#waybar {
 #clock {
   font-weight: 600;
 }
-#battery.warning { color: #e5c07b; }
-#battery.critical { color: #e06c75; }
+#battery.warning { color: @yellow; }
+#battery.critical { color: @red; }

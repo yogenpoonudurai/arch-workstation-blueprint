@@ -8,5 +8,9 @@ alias grep='grep --color=auto'
 alias n='nvim'
 alias h='hyprctl'
 
-# minimal prompt
-PS1='[%n@%m %1~]$ '
+# starship prompt (only if installed: sudo pacman -S starship)
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+else
+  PS1='[%n@%m %1~]$ '
+fi

@@ -34,4 +34,7 @@ for f in .zprofile .zshrc .tmux.conf; do
   [ -f "$DOT/$f" ] && link "$DOT/$f" "$HOME/$f"
 done
 
+# top-level single files in .config
+[ -f "$DOT/.config/starship.toml" ] && link "$DOT/.config/starship.toml" "$HOME/.config/starship.toml"
+
 echo "done. Reload: hyprctl reload; tmux source ~/.config/tmux/tmux.conf"
