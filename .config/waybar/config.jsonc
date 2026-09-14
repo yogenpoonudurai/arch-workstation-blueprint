@@ -34,7 +34,8 @@
     "format-ethernet": "󰈀",
     "format-disconnected": "󰖪",
     "tooltip-format": "{ifname}: {ipaddr}",
-    "on-click": "uwsm app -- alacritty -e nmtui"
+    "on-click": "uwsm app -- alacritty -e nmtui",
+    "on-click-middle": "nmcli radio wifi | grep -q enabled && nmcli radio wifi off || nmcli radio wifi on"
   },
   "bluetooth": {
     "format": "",
@@ -45,7 +46,8 @@
     "tooltip-format": "{controller_alias}\t{status}",
     "tooltip-format-connected": "{device_alias}\t{status}",
     "on-click": "uwsm app -- blueman-manager",
-    "on-click-right": "uwsm app -- alacritty -e bluetoothctl"
+    "on-click-right": "uwsm app -- alacritty -e bluetoothctl",
+    "on-click-middle": "bluetoothctl show 2>/dev/null | grep -q 'Powered: yes' && bluetoothctl power off || bluetoothctl power on"
   },
   "pulseaudio": {
     "format": "{icon} {volume}",
@@ -53,6 +55,7 @@
     "format-icons": { "default": ["", "", ""] },
     "on-click": "uwsm app -- pavucontrol || uwsm app -- helvum || uwsm app -- alacritty -e alsamixer",
     "on-click-right": "uwsm app -- helvum || uwsm app -- pavucontrol",
+    "on-click-middle": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "scroll-step": 5
   },
   "battery": {

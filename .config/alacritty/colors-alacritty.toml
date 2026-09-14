@@ -1,16 +1,15 @@
-# Palette — overwritten by theme-from-wallpaper
 [colors.primary]
 background = "#0e0e11"
 foreground = "#e6e6eb"
 [colors.normal]
-black = "#1a1a20"
+black = "#16161a"
 red = "#e06c75"
 green = "#98c379"
 yellow = "#e5c07b"
 blue = "#7aa2f7"
 magenta = "#bb9af7"
 cyan = "#56b6c2"
-white = "#a9a9b3"
+white = "#e6e6eb"
 [colors.bright]
 black = "#6b6b76"
 red = "#e06c75"
@@ -19,4 +18,4 @@ yellow = "#e5c07b"
 blue = "#7aa2f7"
 magenta = "#bb9af7"
 cyan = "#56b6c2"
-white = "#e6e6eb"
+white = "#ffffff"

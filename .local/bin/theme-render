@@ -1,0 +1,169 @@
+#!/usr/bin/env python3
+"""theme-render — colors.toml -> app fragments + templates, then reload UI.
+
+Reads ~/.config/theme/colors.toml (Quattro-compatible keys + our `border`
+extension) and regenerates Waybar/Rofi/SwayNC/Hyprland/Alacritty fragments
+plus ~/.config/theme/templates/*.tpl -> ~/.config/<path>.
+Writes go through the dotfiles symlinks, so generated state stays in git.
+"""
+import re
+import subprocess
+import sys
+import tomllib
+from pathlib import Path
+
+HOME = Path.home()
+THEME = HOME / ".config/theme"
+TPL_DIR = THEME / "templates"
+
+
+def load_colors() -> dict:
+    with open(THEME / "colors.toml", "rb") as f:
+        data = tomllib.load(f)
+    if not isinstance(data, dict):
+        raise SystemExit("colors.toml is not a table")
+    return data
+
+
+def hex_to_rgba(h: str, alpha: str = "ff") -> str:
+    h = h.strip().lstrip("#")
+    if len(h) == 6:
+        return f"rgba({h}{alpha})"
+    if len(h) == 8:
+        return f"rgba({h})"
+    raise SystemExit(f"bad hex color: {h!r}")
+
+
+def norm(h: str, fb: str) -> str:
+    h = (h or fb).strip()
+    if not h.startswith("#"):
+        return fb
+    return h[:7] if len(h) == 9 else h
+
+
+def main() -> None:
+    no_reload = "--no-reload" in sys.argv
+    c = load_colors()
+    g = lambda k, fb: norm(c.get(k, fb), fb)  # noqa: E731
+
+    bg = g("background", "#0e0e11")
+    dark_bg = g("darker_background", "#0a0a0e")
+    surface = g("dark_background", "#16161a")
+    lighter_bg = g("lighter_background", "#232329")
+    selection = g("selection", "#2e2e3a")
+    border = g("border", "#2e2e36")
+    fg = g("foreground", "#e6e6eb")
+    dark_fg = g("dark_foreground", "#9a9aa3")
+    muted = g("muted", "#6b6b76")
+    accent = g("accent", "#7aa2f7")
+    red = g("red", "#e06c75")
+    yellow = g("yellow", "#e5c07b")
+    green = g("green", "#98c379")
+    cyan = g("cyan", "#56b6c2")
+    blue = g("blue", accent)
+    magenta = g("magenta", "#bb9af7")
+    orange = g("orange", yellow)
+    light_fg = g("light_foreground", fg)
+    bright_fg = g("bright_foreground", "#ffffff")
+    b_red = g("bright_red", red)
+    b_yellow = g("bright_yellow", yellow)
+    b_green = g("bright_green", green)
+    b_cyan = g("bright_cyan", cyan)
+    b_blue = g("bright_blue", blue)
+    b_magenta = g("bright_magenta", magenta)
+
+    css = (
+        f"@define-color bg {bg};\n@define-color dark_bg {dark_bg};\n"
+        f"@define-color surface {surface};\n@define-color lighter_bg {lighter_bg};\n"
+        f"@define-color selection {selection};\n@define-color border {border};\n"
+        f"@define-color fg {fg};\n@define-color dark_fg {dark_fg};\n"
+        f"@define-color muted {muted};\n@define-color accent {accent};\n"
+        f"@define-color yellow {yellow};\n@define-color red {red};\n"
+        f"@define-color green {green};\n"
+    )
+    (THEME / "colors-waybar.css").write_text(css)
+    (HOME / ".config/waybar/colors-waybar.css").write_text(css)
+    (THEME / "colors-swaync.css").write_text(css)
+    (HOME / ".config/swaync/colors-swaync.css").write_text(css)
+
+    rasi = (
+        "* {\n" + "".join(
+            f"  {k}: {v}ff;\n"
+            for k, v in [
+                ("bg", bg), ("dark-bg", dark_bg), ("surface", surface),
+                ("lighter-bg", lighter_bg), ("selection", selection),
+                ("border", border), ("fg", fg), ("dark-fg", dark_fg),
+                ("muted", muted), ("accent", accent), ("yellow", yellow),
+                ("red", red), ("green", green),
+            ]
+        ) + "}\n"
+    )
+    (THEME / "colors-rofi.rasi").write_text(rasi)
+    (HOME / ".config/rofi/colors-rofi.rasi").write_text(rasi)
+
+    hypr = (
+        "return {\n" + "".join(
+            f'  {k} = "{hex_to_rgba(v)}",\n'
+            for k, v in [
+                ("bg", bg), ("dark_bg", dark_bg), ("surface", surface),
+                ("lighter_bg", lighter_bg), ("selection", selection),
+                ("border", border), ("fg", fg), ("dark_fg", dark_fg),
+                ("muted", muted), ("yellow", yellow), ("red", red),
+                ("green", green),
+            ]
+        ) + f'  active1 = "{hex_to_rgba(accent, "ee")}",\n'
+        f'  active2 = "{hex_to_rgba(accent, "ee")}",\n'
+        '  inactive = "rgba(595959aa)",\n}\n'
+    )
+    (THEME / "colors-hypr.lua").write_text(hypr)
+    (HOME / ".config/hypr/colors-hypr.lua").write_text(hypr)
+
+    alacritty = (
+        "[colors.primary]\n"
+        f'background = "{bg}"\nforeground = "{fg}"\n'
+        "[colors.normal]\n"
+        f'black = "{surface}"\nred = "{red}"\ngreen = "{green}"\n'
+        f'yellow = "{yellow}"\nblue = "{blue}"\nmagenta = "{magenta}"\n'
+        f'cyan = "{cyan}"\nwhite = "{light_fg}"\n'
+        "[colors.bright]\n"
+        f'black = "{muted}"\nred = "{b_red}"\ngreen = "{b_green}"\n'
+        f'yellow = "{b_yellow}"\nblue = "{b_blue}"\nmagenta = "{b_magenta}"\n'
+        f'cyan = "{b_cyan}"\nwhite = "{bright_fg}"\n'
+    )
+    (THEME / "colors-alacritty.toml").write_text(alacritty)
+    (HOME / ".config/alacritty/colors-alacritty.toml").write_text(alacritty)
+
+    # Generic {{var}} templates (Quattro-style themed/ dir)
+    tpl_vars: dict[str, str] = {}
+    for k, v in c.items():
+        if isinstance(v, str) and v.startswith("#"):
+            tpl_vars[k] = v
+            tpl_vars[k + "_strip"] = v.lstrip("#")
+            try:
+                r, gg, b = v.lstrip("#")[:6][0:2], v.lstrip("#")[:6][2:4], v.lstrip("#")[:6][4:6]
+                tpl_vars[k + "_rgb"] = f"{int(r, 16)},{int(gg, 16)},{int(b, 16)}"
+            except ValueError:
+                pass
+    if TPL_DIR.is_dir():
+        for tpl in sorted(TPL_DIR.rglob("*.tpl")):
+            rel = tpl.relative_to(TPL_DIR)
+            out = HOME / ".config" / str(rel)[: -len(".tpl")]
+            text = tpl.read_text()
+            def sub(m: "re.Match") -> str:
+                return tpl_vars.get(m.group(1), m.group(0))
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(re.sub(r"\{\{\s*([a-z_]+)\s*\}\}", sub, text))
+            print(f"template: {rel} -> {out.relative_to(HOME)}")
+
+    print(f"theme rendered: accent={accent} bg={bg}")
+    if no_reload:
+        return
+    subprocess.run(["hyprctl", "reload"], capture_output=True)
+    wb = subprocess.run(["pkill", "-SIGUSR2", "waybar"], capture_output=True)
+    if wb.returncode != 0:
+        subprocess.run(["pkill", "waybar"], capture_output=True)
+    subprocess.run(["swaync-client", "-rs"], capture_output=True)
+
+
+if __name__ == "__main__":
+    main()

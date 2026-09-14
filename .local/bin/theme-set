@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# theme-set <name> — activate a preset from ~/.config/theme/themes/ and reload UI.
+set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
+
+NAME="${1:-}"
+THEME_DIR="$HOME/.config/theme"
+if [ -z "$NAME" ]; then
+  echo "Available:"; ls -1 "$THEME_DIR/themes" 2>/dev/null || echo "(none)"
+  echo "Usage: theme-set <name>" >&2
+  exit 1
+fi
+SRC="$THEME_DIR/themes/$NAME/colors.toml"
+if [[ ! "$NAME" =~ ^[A-Za-z0-9._+-]+$ ]] || [ ! -f "$SRC" ]; then
+  echo "Unknown theme: $NAME" >&2
+  exit 1
+fi
+cp -- "$SRC" "$THEME_DIR/colors.toml"
+echo "$NAME" > "$THEME_DIR/current"
+exec theme-render

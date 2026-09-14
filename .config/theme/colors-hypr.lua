@@ -8,10 +8,10 @@ return {
   fg = "rgba(e6e6ebff)",
   dark_fg = "rgba(9a9aa3ff)",
   muted = "rgba(6b6b76ff)",
-  active1 = "rgba(7aa2f7ee)",
-  active2 = "rgba(bb9af7ee)",
-  inactive = "rgba(595959aa)",
   yellow = "rgba(e5c07bff)",
   red = "rgba(e06c75ff)",
   green = "rgba(98c379ff)",
+  active1 = "rgba(7aa2f7ee)",
+  active2 = "rgba(7aa2f7ee)",
+  inactive = "rgba(595959aa)",
 }

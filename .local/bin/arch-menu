@@ -8,6 +8,7 @@ CHOICE="$(printf '%s\n' \
   "Remove Package" \
   "System Update" \
   "Appearance" \
+  "Theme" \
   "Display" \
   "Network" \
   "Bluetooth" \
@@ -18,6 +19,7 @@ case "${CHOICE:-}" in
   "Remove Package")  exec package-remove ;;
   "System Update")   exec uwsm app -- alacritty -e bash -c 'sudo pacman -Syu; echo; read -rp "Done — press Enter to close…" _' ;;
   "Appearance")      exec uwsm app -- nwg-look ;;
+  "Theme")           exec theme-switch ;;
   "Display")         exec monitor-menu ;;
   "Network")         exec uwsm app -- alacritty -e nmtui ;;
   "Bluetooth")       exec uwsm app -- blueman-manager || exec uwsm app -- alacritty -e bluetoothctl ;;
