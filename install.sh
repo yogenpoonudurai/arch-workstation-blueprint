@@ -17,7 +17,7 @@ link() {
 }
 
 # configs
-for d in hypr waybar rofi swaync alacritty tmux gtk-3.0 gtk-4.0 matugen nvim; do
+for d in hypr waybar rofi swaync alacritty tmux gtk-3.0 gtk-4.0 matugen nvim theme; do
   [ -d "$DOT/.config/$d" ] || continue
   # symlink individual files to avoid clobbering runtime dirs
   for f in $(cd "$DOT/.config/$d" && find . -type f | sort); do

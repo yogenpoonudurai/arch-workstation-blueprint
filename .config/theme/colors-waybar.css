@@ -1,0 +1,9 @@
+/* Fallback palette — overwritten by Matugen via theme-from-wallpaper.
+   Define GTK-style @vars used by style.css */
+@define-color bg #0e0e11;
+@define-color surface #16161a;
+@define-color border #2e2e36;
+@define-color fg #e6e6eb;
+@define-color muted #9a9aa3;
+@define-color accent #7aa2f7;
+
