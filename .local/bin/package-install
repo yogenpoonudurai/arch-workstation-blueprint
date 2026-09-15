@@ -43,12 +43,12 @@ install_aur() {
 }
 
 if [ "${1:-}" = "--aur" ]; then
-  SEL="$(printf '%s\n%s' "$(list_aur)" "$BACK_TOGGLE" | pick "Install from AUR")"
+  SEL="$(printf '%s\n%s' "$BACK_TOGGLE" "$(list_aur)" | pick "Install from AUR")"
   [ -z "${SEL:-}" ] && exit 0
   [ "$SEL" = "$BACK_TOGGLE" ] && exec "$0"
   install_aur "${SEL%%[[:space:]]*}"
 else
-  SEL="$(printf '%s\n%s' "$(list_official)" "$AUR_TOGGLE" | pick "Install package")"
+  SEL="$(printf '%s\n%s' "$AUR_TOGGLE" "$(list_official)" | pick "Install package")"
   [ -z "${SEL:-}" ] && exit 0
   [ "$SEL" = "$AUR_TOGGLE" ] && exec "$0" --aur
   install_official "${SEL%%[[:space:]]*}"

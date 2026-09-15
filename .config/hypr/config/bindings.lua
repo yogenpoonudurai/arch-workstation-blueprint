@@ -96,7 +96,8 @@ hl.bind(mod .. " + SHIFT + Print", hl.dsp.exec_cmd("mkdir -p ~/Pictures/Screensh
 hl.bind(mod .. " + SHIFT + V", hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard 2>/dev/null || (cliphist list | head -n 20) || true"))
 
 -- Interactive region screenshot (Satty annotation; graceful if not installed)
-hl.bind("CTRL + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-satty"))
+hl.bind("CTRL + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-satty region"))
+hl.bind("CTRL + SHIFT + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-satty full"))
 
 -- Volume / brightness / media (Noctalia OSD + direct control)
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("noctalia msg volume-up 5 2>/dev/null; wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })

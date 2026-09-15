@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# screenshot-satty — region select (slurp) -> annotate (satty) -> save + clipboard.
+# screenshot-satty [region|full] — capture -> annotate (satty) -> save + clipboard.
+# region (default): slurp picker. full: whole outputs, no overlay, so
+# layer-shell popups (Noctalia menus) stay open for the shot.
 set -euo pipefail
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -11,6 +13,11 @@ fi
 OUT="$HOME/Pictures/Screenshots"
 mkdir -p "$OUT"
 FILE="$OUT/shot-$(date +%Y%m%d-%H%M%S).png"
+
+if [ "${1:-region}" = "full" ]; then
+  grim - | satty --filename - --output-filename "$FILE" --copy-command wl-copy
+  exit 0
+fi
 
 REGION="$(slurp -d 2>/dev/null || true)"
 [ -z "${REGION:-}" ] && exit 0 # Esc pressed
