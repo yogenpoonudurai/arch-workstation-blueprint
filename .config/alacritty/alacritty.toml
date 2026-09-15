@@ -1,8 +1,12 @@
 [general]
-import = ["~/.config/alacritty/colors-alacritty.toml"]
+import = [
+    "~/.config/alacritty/colors-alacritty.toml",
+    "~/.config/alacritty/themes/noctalia.toml",
+]
 
 [terminal]
-shell = "zsh"
+[terminal.shell]
+program = "zsh"
 
 [window]
 opacity = 1.0

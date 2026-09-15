@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# package-remove — Noctalia-launcher remover for installed packages.
+set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
+
+list_installed() {
+  if command -v expac >/dev/null 2>&1; then
+    expac -Q '%n\t%d' 2>/dev/null | sort -u
+  else
+    pacman -Q 2>/dev/null | awk '{name=$1; $1=""; sub(/^ /,""); print name"\t"$0}'
+  fi
+}
+
+SEL="$(list_installed | noctalia dmenu -p "Remove package" 2>/dev/null || true)"
+[ -z "${SEL:-}" ] && exit 0
+
+PKG="${SEL%%[[:space:]]*}"
+if [[ ! "$PKG" =~ ^[a-z0-9@._+\-]+$ ]]; then
+  notify-send "Arch" "Invalid package name: $PKG" 2>/dev/null || true
+  exit 1
+fi
+if ! pacman -Qi -- "$PKG" >/dev/null 2>&1; then
+  notify-send "Arch" "Not installed: $PKG" 2>/dev/null || true
+  exit 1
+fi
+
+exec uwsm app -- alacritty -e bash -c 'sudo pacman -Rns -- "$1"; echo; read -rp "Done — press Enter to close…" _' _ "$PKG"
