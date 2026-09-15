@@ -88,17 +88,17 @@ hl.bind(mod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
 hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
--- Screenshots: Noctalia IPC preferred (annotate/save/copy), grim fallback
-hl.bind("Print", hl.dsp.exec_cmd("noctalia msg screenshot-fullscreen 2>/dev/null || (mkdir -p ~/Pictures/Screenshots && grim ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png && wl-copy < $(ls -t ~/Pictures/Screenshots/*.png | head -n1)) || true"), { locked = true })
-hl.bind(mod .. " + Print", hl.dsp.exec_cmd("noctalia msg screenshot-region 2>/dev/null || (mkdir -p ~/Pictures/Screenshots && grim -g \"$(slurp)\" ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png && wl-copy < $(ls -t ~/Pictures/Screenshots/*.png | head -n1)) || true"), { locked = true })
-hl.bind(mod .. " + SHIFT + Print", hl.dsp.exec_cmd("mkdir -p ~/Pictures/Screenshots && grim -g \"$(hyprctl activewindow -j | jq -r '.at,.size | join(\" \")' | awk '{print $1\",\"$2\" \"$3\"x\"$4}')\" ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png 2>/dev/null || grim ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png; wl-copy < $(ls -t ~/Pictures/Screenshots/*.png | head -n1) || true"), { locked = true })
+-- Screenshots: instant save+copy to ~/Pictures, click notification to edit in Satty
+hl.bind("Print", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant full"), { locked = true })
+hl.bind(mod .. " + Print", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant region"), { locked = true })
+hl.bind(mod .. " + SHIFT + Print", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant window"), { locked = true })
 
 -- Clipboard history (Noctalia panel; cliphist CLI as fallback)
 hl.bind(mod .. " + SHIFT + V", hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard 2>/dev/null || (cliphist list | head -n 20) || true"))
 
--- Interactive region screenshot (Satty annotation; graceful if not installed)
-hl.bind("CTRL + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-satty region"))
-hl.bind("CTRL + SHIFT + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-satty full"))
+-- Instant screenshot (save+copy, click notification to annotate in Satty)
+hl.bind("CTRL + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant region"))
+hl.bind("CTRL + SHIFT + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant full"))
 
 -- Volume / brightness / media (Noctalia OSD + direct control)
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("noctalia msg volume-up 5 2>/dev/null; wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })

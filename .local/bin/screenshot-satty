@@ -10,9 +10,9 @@ if ! command -v satty >/dev/null 2>&1; then
   exit 1
 fi
 
-OUT="$HOME/Pictures/Screenshots"
+OUT="$HOME/Pictures"
 mkdir -p "$OUT"
-FILE="$OUT/shot-$(date +%Y%m%d-%H%M%S).png"
+FILE="$OUT/screenshot-$(date +%Y%m%d-%H%M%S).png"
 
 if [ "${1:-region}" = "full" ]; then
   grim - | satty --filename - --output-filename "$FILE" --copy-command wl-copy

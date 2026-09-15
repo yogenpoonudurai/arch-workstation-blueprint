@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# screenshot-instant [region|full|window] — capture -> save ~/Pictures + clipboard,
+# no Satty popup. Notification (8s): body/button click reopens FILE in Satty.
+set -euo pipefail
+
+MODE="${1:-region}"
+OUT="$HOME/Pictures"
+mkdir -p "$OUT"
+FILE="$OUT/screenshot-$(date +%Y%m%d-%H%M%S).png"
+
+case "$MODE" in
+  full)
+    grim "$FILE"
+    ;;
+  window)
+    GEO=$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' 2>/dev/null || true)
+    if [ -n "${GEO:-}" ]; then grim -g "$GEO" "$FILE"; else grim "$FILE"; fi
+    ;;
+  *)
+    REGION="$(slurp -d 2>/dev/null || true)"
+    [ -z "${REGION:-}" ] && exit 0 # Esc pressed
+    grim -g "$REGION" "$FILE"
+    ;;
+esac
+
+wl-copy < "$FILE"
+
+# Wait for click in background so rapid screenshots never queue.
+(
+  ACTION=$(notify-send -t 8000 -A default="Edit in Satty" -i "$FILE" "Screenshot saved" "$(basename "$FILE") — click to edit" 2>/dev/null || true)
+  if [ "${ACTION:-}" = "default" ] && command -v satty >/dev/null 2>&1; then
+    satty --filename "$FILE" --output-filename "$FILE" --copy-command wl-copy >/dev/null 2>&1 &
+    disown || true
+  fi
+) >/dev/null 2>&1 &
+disown || true
+
+echo "$FILE"
