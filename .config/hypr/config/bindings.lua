@@ -11,15 +11,14 @@ hl.bind(mod .. " + W", hl.dsp.window.close())
 hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher"))
 hl.bind(mod .. " + SHIFT + SPACE", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher /emo || noctalia msg panel-toggle launcher"))
 
--- Spec: SUPER+M → power/exit UI, SUPER+F fullscreen toggle (Omarchy-style)
--- NOTE: hyprctl dispatch is broken in 0.56.2 (Lua-wrapper mangles args), and
--- no hl.dsp fullscreen dispatcher exists, so this uses the hl.window API
--- directly inside a Lua-function bind (verified strings, not yet press-tested).
+-- Spec: SUPER+M → power/exit UI
+-- NOTE: Super+F (fullscreen toggle) is UNAVAILABLE on Hyprland 0.56.2:
+--   - hyprctl dispatch mangles all args (Lua-wrapper bug),
+--   - no hl.dsp fullscreen dispatcher object exists,
+--   - hl.window.* is nil in user Lua (verified via press-time error).
+-- Left unbound pending upstream fix; see issue text in commit message.
 hl.bind(mod .. " + M", hl.dsp.exec_cmd("noctalia msg panel-toggle session || noctalia msg panel-toggle control-center"))
 hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("noctalia msg panel-toggle session"))
-hl.bind(mod .. " + F", function()
-  hl.window.fullscreen({ action = "toggle", mode = "fullscreen" })
-end)
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 
 -- Window tiling
