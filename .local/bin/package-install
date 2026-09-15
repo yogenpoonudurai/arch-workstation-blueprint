@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
-# package-install — Noctalia-launcher installer, official repos only, no AUR.
-# Shows "package-name<TAB>description", fuzzy search, opens Alacritty for pacman confirm.
+# package-install — Noctalia-launcher installer, official repos + optional AUR.
+# Default view is official-only (fast, trusted). Last row toggles AUR mode.
+# Official installs: streamlined pacman confirm. AUR installs: full yay
+# interaction WITH PKGBUILD diff (never silent — AUR is user-submitted code).
 set -euo pipefail
 export PATH="$HOME/.local/bin:$PATH"
 
+AUR_TOGGLE="── Search AUR ──"
+BACK_TOGGLE="── Back to official repos ──"
+
 pick() {
-  if command -v noctalia >/dev/null 2>&1; then
-    noctalia dmenu -p "${1:-Package}" 2>/dev/null || true
-  else
-    return 1
-  fi
+  noctalia dmenu -p "${1:-Package}" 2>/dev/null || true
 }
 
-list_pkgs() {
+list_official() {
   if command -v expac >/dev/null 2>&1; then
     expac -S '%n\t%d' 2>/dev/null | sort -u
   else
@@ -20,17 +21,35 @@ list_pkgs() {
   fi
 }
 
-SEL="$(list_pkgs | pick "Install package")"
-[ -z "${SEL:-}" ] && exit 0
+list_aur() {
+  yay -Sl aur 2>/dev/null | awk '{print $2}' | sort -u
+}
 
-PKG="${SEL%%[[:space:]]*}"
-if [[ ! "$PKG" =~ ^[a-z0-9@._+\-]+$ ]]; then
-  notify-send "Arch" "Invalid package name: $PKG" 2>/dev/null || true
-  exit 1
-fi
-if ! pacman -Si -- "$PKG" >/dev/null 2>&1; then
-  notify-send "Arch" "Package not found: $PKG" 2>/dev/null || true
-  exit 1
-fi
+valid_name() { [[ "$1" =~ ^[a-z0-9@._+\-]+$ ]]; }
 
-exec uwsm app -- alacritty -e bash -c 'sudo pacman -S --needed -- "$1"; echo; read -rp "Done — press Enter to close…" _' _ "$PKG"
+install_official() {
+  local pkg="$1"
+  valid_name "$pkg" || { notify-send "Arch" "Invalid package name" 2>/dev/null || true; exit 1; }
+  pacman -Si -- "$pkg" >/dev/null 2>&1 || { notify-send "Arch" "Not found: $pkg" 2>/dev/null || true; exit 1; }
+  exec uwsm app -- alacritty -e bash -c 'sudo pacman -S --needed -- "$1"; echo; read -rp "Done — press Enter to close…" _' _ "$pkg"
+}
+
+install_aur() {
+  local pkg="$1"
+  valid_name "$pkg" || { notify-send "Arch" "Invalid package name" 2>/dev/null || true; exit 1; }
+  yay -Si --aur -- "$pkg" >/dev/null 2>&1 || { notify-send "Arch" "Not found in AUR: $pkg" 2>/dev/null || true; exit 1; }
+  # Deliberately WITHOUT --noconfirm: review the PKGBUILD diff yourself.
+  exec uwsm app -- alacritty -e bash -c 'yay -S -- "$1"; echo; read -rp "Done — press Enter to close…" _' _ "$pkg"
+}
+
+if [ "${1:-}" = "--aur" ]; then
+  SEL="$(printf '%s\n%s' "$(list_aur)" "$BACK_TOGGLE" | pick "Install from AUR")"
+  [ -z "${SEL:-}" ] && exit 0
+  [ "$SEL" = "$BACK_TOGGLE" ] && exec "$0"
+  install_aur "${SEL%%[[:space:]]*}"
+else
+  SEL="$(printf '%s\n%s' "$(list_official)" "$AUR_TOGGLE" | pick "Install package")"
+  [ -z "${SEL:-}" ] && exit 0
+  [ "$SEL" = "$AUR_TOGGLE" ] && exec "$0" --aur
+  install_official "${SEL%%[[:space:]]*}"
+fi
