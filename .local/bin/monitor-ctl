@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# monitor-ctl — full monitor control (resolution, orientation, scale, layout).
+# Noctalia-native picker; applies live via `hyprctl eval` (hyprctl keyword is
+# dead under Lua config) and persists to config/monitors.lua with backup.
+set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
+
+MONF="$HOME/.config/hypr/config/monitors.lua"
+[ -f "$MONF" ] || MONF="$HOME/.config/hypr/monitors.lua"
+
+pick() { noctalia dmenu -p "${1:-Display}" 2>/dev/null || true; }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+mons_json() { hyprctl monitors -j 2>/dev/null; }
+focused_mon() { mons_json | python3 -c 'import json,sys; ms=json.load(sys.stdin); print(next((m["name"] for m in ms if m.get("focused")), ms[0]["name"]))'; }
+
+# Live single-monitor reconfig. Args: name + hl.monitor fields.
+mrun() {
+  local out="$1"; shift
+  hyprctl eval "hl.monitor({output=\"$out\", $*})"
+}
+
+backup_mons() { cp -a "$MONF" "$MONF.bak-$(date +%Y%m%d-%H%M%S)"; }
+
+# Rewrite the whole monitors file with the given blocks, validate, restore on error.
+apply_file() {
+  backup_mons
+  printf '%s\n' "$1" > "$MONF"
+  hyprctl reload >/dev/null 2>&1
+  sleep 1
+  if hyprctl configerrors 2>&1 | grep -q .; then
+    local last; last="$(ls -t "$MONF".bak-* | head -n1)"
+    cp -a "$last" "$MONF"
+    hyprctl reload >/dev/null 2>&1 || true
+    notify-send "Display" "Config rejected, restored previous" 2>/dev/null || true
+    return 1
+  fi
+}
+
+mon_block() { # name mode pos scale [extra-line, e.g. 'mirror = "eDP-1"']
+  if [ -n "${5:-}" ]; then
+    printf 'hl.monitor({\n  output = "%s",\n  mode = "%s",\n  position = "%s",\n  scale = "%s",\n  %s\n})' "$1" "$2" "$3" "$4" "$5"
+  else
+    printf 'hl.monitor({\n  output = "%s",\n  mode = "%s",\n  position = "%s",\n  scale = "%s",\n})' "$1" "$2" "$3" "$4"
+  fi
+}
+pick_monitor() {
+  mons_json | python3 -c 'import json,sys; print("\n".join(m["name"] for m in json.load(sys.stdin)))' | pick "Monitor"
+}
+
+do_resolution() {
+  local out="$1"
+  local modes; modes="$(mons_json | python3 -c 'import json,sys; ms=json.load(sys.stdin); print("\n".join(next(m["availableModes"] for m in ms if m["name"]=="'"$out"'")))')"
+  [ -z "$modes" ] && { notify-send "Display" "No modes for $out" 2>/dev/null || true; return 1; }
+  local mode; mode="$(printf '%s' "$modes" | pick "Resolution $out")"
+  [ -z "${mode:-}" ] && return 0
+  mrun "$out" "mode = \"$mode\", position = \"auto\", scale = \"auto\""
+}
+
+do_orientation() {
+  local out="$1"
+  local rot; rot="$(printf 'Normal (0)\n90° (1)\n180° (2)\n270° (3)' | pick "Rotate $out")"
+  local t=0
+  case "$rot" in *"90"*) t=1;; *"180"*) t=2;; *"270"*) t=3;; "" ) return 0;; esac
+  mrun "$out" "mode = \"preferred\", position = \"auto\", scale = \"auto\", transform = $t"
+}
+
+do_scale() {
+  local out="$1"
+  local s; s="$(printf '100%%\n125%%\n150%%\n175%%\n200%%' | pick "Scale $out")"
+  local f=""
+  case "$s" in "100%"*) f=1;; "125%"*) f=1.25;; "150%"*) f=1.5;; "175%"*) f=1.75;; "200%"*) f=2;; *) return 0;; esac
+  mrun "$out" "mode = \"preferred\", position = \"auto\", scale = \"$f\""
+}
+
+do_layout() {
+  local me; me="$(focused_mon)"
+  local others; others="$(mons_json | python3 -c 'import json,sys; ms=json.load(sys.stdin); print("\n".join(m["name"] for m in ms if m["name"]!="'"$me"'"))')"
+  local action; action="$(printf 'Laptop only\nExtend right\nExtend left\nExtend above\nMirror' | pick "Layout")"
+  [ -z "${action:-}" ] && return 0
+  local ext; ext="$(printf '%s' "$others" | pick "External monitor")"
+  case "$action" in
+    "Laptop only"*)
+      apply_file "$(mon_block "$me" preferred 0x0 auto)" ;;
+    "Extend right"|"Extend left"|"Extend above")
+      [ -z "${ext:-}" ] && return 0
+      local pos=auto-right; case "$action" in *"left"*) pos=auto-left;; *"above"*) pos=auto-up;; esac
+      apply_file "$(mon_block "$me" preferred 0x0 auto)
+$(mon_block "$ext" preferred "$pos" auto)" ;;
+    "Mirror"*)
+      [ -z "${ext:-}" ] && return 0
+      apply_file "$(mon_block "$me" preferred 0x0 auto)
+$(mon_block "$ext" preferred 0x0 auto 'mirror = "'"$me"'"'))" ;;
+  esac
+}
+
+main() {
+  local out; out="$(pick_monitor)"
+  [ -z "${out:-}" ] && exit 0
+  local action; action="$(printf 'Resolution\nOrientation\nScale\nLayout (multi-monitor)' | pick "$out")"
+  [ -z "${action:-}" ] && exit 0
+  case "$action" in
+    Resolution*) do_resolution "$out" ;;
+    Orientation*) do_orientation "$out" ;;
+    Scale*) do_scale "$out" ;;
+    Layout*) do_layout ;;
+  esac
+}
+
+main
