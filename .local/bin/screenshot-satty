@@ -15,4 +15,4 @@ FILE="$OUT/shot-$(date +%Y%m%d-%H%M%S).png"
 REGION="$(slurp -d 2>/dev/null || true)"
 [ -z "${REGION:-}" ] && exit 0 # Esc pressed
 
-grim -g "$REGION" - | satty --filename - --fullscreen --output "$FILE" --copy-command wl-copy
+grim -g "$REGION" - | satty --filename - --output-filename "$FILE" --copy-command wl-copy

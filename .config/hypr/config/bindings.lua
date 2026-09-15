@@ -22,7 +22,7 @@ hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + T", hl.dsp.layout("togglesplit"))
 
 -- Launcher / tools (pacseek preferred, Noctalia panels for shell UI)
-hl.bind(mod .. " + P", hl.dsp.exec_cmd("uwsm app -- alacritty -e pacseek 2>/dev/null || uwsm app -- alacritty -e sh -c 'sudo pacman -Syu'"))
+hl.bind(mod .. " + P", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher install"))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("uwsm app -- brave 2>/dev/null || uwsm app -- chromium"))
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("noctalia msg panel-toggle notifications 2>/dev/null || noctalia msg notification-invoke-latest"))
 hl.bind(mod .. " + SHIFT + N", hl.dsp.exec_cmd("noctalia msg notification-clear-active"))
