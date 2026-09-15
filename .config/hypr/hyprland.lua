@@ -9,3 +9,6 @@ require("config.animations")
 require("config.bindings")
 require("config.rules")
 require("config.autostart")
+
+-- For Noctalia Color templates
+require("noctalia").apply_theme()

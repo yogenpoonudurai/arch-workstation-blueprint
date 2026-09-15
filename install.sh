@@ -16,11 +16,14 @@ link() {
   echo "link: $dst -> $src"
 }
 
-# configs (noctalia/quickshell first = single-shell goal; legacy waybar/rofi/swaync kept until removal)
-for d in hypr noctalia quickshell alacritty tmux gtk-3.0 gtk-4.0 matugen nvim theme waybar rofi swaync; do
+# Configs. Noctalia is the only desktop shell.
+for d in hypr noctalia quickshell alacritty tmux herdr gtk-3.0 gtk-4.0 matugen nvim theme; do
   [ -d "$DOT/.config/$d" ] || continue
   # symlink individual files to avoid clobbering runtime dirs
-  for f in $(cd "$DOT/.config/$d" && find . -type f | sort); do
+  for f in $(cd "$DOT/.config/$d" && find . -type f \
+    ! -name '*.bak-*' \
+    ! -name '*.security-backup' \
+    ! -name '*.security-backup-*' | sort); do
     rel="${f#./}"
     link "$DOT/.config/$d/$rel" "$HOME/.config/$d/$rel"
   done

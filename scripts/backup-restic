@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Usage: backup-restic /path/to/restic/repository
+set -euo pipefail
+
+REPO="${1:?usage: backup-restic /path/to/restic/repository}"
+DEVELOPMENT_PATH="${DEVELOPMENT_PATH:-/mnt/Development}"
+TAG="${RESTIC_TAG:-pre-luks}"
+
+[ -f "$REPO/config" ] || { echo "error: Restic repository not found: $REPO" >&2; exit 1; }
+[ -d "$DEVELOPMENT_PATH" ] || { echo "error: Development path not found: $DEVELOPMENT_PATH" >&2; exit 1; }
+mountpoint -q "$DEVELOPMENT_PATH" || { echo "error: Development path is not a mounted filesystem" >&2; exit 1; }
+
+repo_real="$(realpath -e "$REPO")"
+home_real="$(realpath -e "$HOME")"
+development_real="$(realpath -e "$DEVELOPMENT_PATH")"
+for source_real in "$home_real" "$development_real" /etc /boot; do
+  if [[ "$repo_real" == "$source_real" || "$repo_real" == "$source_real/"* ]]; then
+    echo "error: Restic repository must not be inside a backed-up source" >&2
+    exit 1
+  fi
+done
+
+repo_filesystem="$(findmnt -nro MAJ:MIN --target "$repo_real")"
+for source_path in "$home_real" "$development_real" /etc /boot; do
+  source_filesystem="$(findmnt -nro MAJ:MIN --target "$source_path")"
+  if [ "$repo_filesystem" = "$source_filesystem" ]; then
+    echo "error: Restic repository and backup source share filesystem $repo_filesystem" >&2
+    exit 1
+  fi
+done
+
+systemd-inhibit --what=sleep:idle --mode=block \
+  --why="Restic $TAG backup" \
+  sudo restic -r "$REPO" backup \
+    --tag "$TAG" \
+    --exclude "$HOME/.cache" \
+    --exclude "$HOME/.local/share/Trash" \
+    --exclude "$DEVELOPMENT_PATH/.Trash-1000" \
+    --exclude '**/.terraform' \
+    "$HOME" \
+    "$DEVELOPMENT_PATH" \
+    /etc \
+    /boot
+
+echo "Verify with: sudo restic -r '$REPO' check --read-data"

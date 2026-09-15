@@ -1,5 +1,5 @@
 # pnpm globals (pnpm add -g). Bin dir ~/.local/share/pnpm/bin (on PATH via .zshrc).
-tsx
-oxlint
-biome
-typescript
+tsx@4.23.13
+oxlint@1.82.0
+biome@0.3.3
+typescript@7.0.2

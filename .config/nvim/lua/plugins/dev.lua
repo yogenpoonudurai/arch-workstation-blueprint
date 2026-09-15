@@ -1,11 +1,12 @@
--- dev.lua — fast full-stack dev layer (TS/Go/Rust/Python), lazy-loaded
--- Kept lean: DAP + tests load on keys only, no startup cost.
+-- dev.lua — full-stack dev layer (TS/Go/Rust/Python), lazy-loaded
+-- Language LSP/DAP/test adapters come from LazyVim extras; keep only
+-- tools and parsers those extras do not provide.
 return {
-  -- Treesitter: ensure only what we use
+  -- Treesitter: extend extras instead of overwriting their parsers
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
+    opts = function(_, opts)
+      vim.list_extend(opts.ensure_installed, {
         "typescript",
         "tsx",
         "javascript",
@@ -19,27 +20,23 @@ return {
         "toml",
         "dockerfile",
         "markdown",
-      },
-    },
+      })
+    end,
   },
 
-  -- Mason: ensure LSP/DAP binaries (installs on demand, no blocking)
+  -- Mason: ensure only binaries not covered by language extras
   {
     "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
-        "vtsls",
         "eslint-lsp",
         "prettier",
-        "gopls",
-        "delve",
-        "rust-analyzer",
-        "pyright",
-        "ruff",
         "dockerfile-language-server",
         "yaml-language-server",
         "stylua",
         "lua-language-server",
+        -- rustaceanvim expects an external binary; the Rust extra only ensures codelldb
+        "rust-analyzer",
       },
     },
   },
@@ -51,36 +48,6 @@ return {
     opts = {
       library = {
         { path = "${3rd}/luv/library", words = { "vim%.uv" } },
-      },
-    },
-  },
-
-  -- DAP UI loads on debug keys only
-  {
-    "mfussenegger/nvim-dap",
-    keys = {
-      { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "DAP breakpoint" },
-      { "<leader>dc", function() require("dap").continue() end, desc = "DAP continue" },
-    },
-  },
-
-  -- Tests load on keys only
-  {
-    "nvim-neotest/neotest",
-    keys = {
-      { "<leader>tt", function() require("neotest").run.run() end, desc = "Test nearest" },
-      { "<leader>tf", function() require("neotest").run.run(vim.fn.expand("%")) end, desc = "Test file" },
-    },
-    dependencies = {
-      "nvim-neotest/neotest-go",
-      "nvim-neotest/neotest-python",
-      "rouge8/neotest-rust",
-    },
-    opts = {
-      adapters = {
-        ["neotest-go"] = {},
-        ["neotest-python"] = {},
-        ["neotest-rust"] = {},
       },
     },
   },

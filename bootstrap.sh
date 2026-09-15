@@ -2,7 +2,6 @@
 # bootstrap.sh — fresh Arch PC provisioner. Idempotent, re-runnable.
 # Usage (on new PC after archinstall):
 #   git clone <your-dotfiles-remote> ~/dotfiles && ~/dotfiles/bootstrap.sh
-#   # or: DOTFILES_REPO=<url> curl -sL <this-file-url> | bash
 set -euo pipefail
 
 DOT="${DOTFILES:-$HOME/dotfiles}"
@@ -12,7 +11,7 @@ die() { echo "ERR: $*" >&2; exit 1; }
 [ -f /etc/arch-release ] || die "Arch Linux required"
 command -v sudo >/dev/null || die "sudo required"
 
-# Optional: clone dotfiles if running via pipe and repo given
+# Optional: clone dotfiles when a repository URL is provided
 if [ ! -d "$DOT" ]; then
   [ -n "${DOTFILES_REPO:-}" ] || die "no ~/dotfiles; set DOTFILES_REPO=<url> or clone manually"
   git clone "$DOTFILES_REPO" "$DOT"
@@ -21,21 +20,12 @@ fi
 echo "==> sudo keep-alive"
 sudo -v
 
-echo "==> AUR helper (paru-bin, prebuilt — no rust compile)"
-if ! command -v paru >/dev/null 2>&1; then
-  tmp="$(mktemp -d)"
-  git clone --depth=1 https://aur.archlinux.org/paru-bin.git "$tmp/paru-bin"
-  (cd "$tmp/paru-bin" && makepkg -si --noconfirm --needed)
-  rm -rf "$tmp"
-fi
-
 echo "==> repo packages ($(grep -cE '^[^#[:space:]]' "$PKG/pacman.txt") entries)"
 grep -vE '^\s*(#|$)' "$PKG/pacman.txt" | sudo pacman -S --needed --noconfirm -
 
-echo "==> AUR packages ($(grep -vE '^\s*(#|$)' "$PKG/aur.txt" | wc -l) entries)"
-if [ -s "$PKG/aur.txt" ]; then
-  grep -vE '^\s*(#|$)' "$PKG/aur.txt" | paru -S --needed --noconfirm -
-fi
+echo "==> AUR packages are intentionally not automated"
+echo "Audit each PKGBUILD and install manually:"
+grep -vE '^\s*(#|$)' "$PKG/aur.txt" || true
 
 echo "==> dotfiles symlinks"
 "$DOT/install.sh"
@@ -64,14 +54,16 @@ while read -r c; do
 done < "$PKG/cargo.txt"
 
 echo "==> services (no auth tokens baked in)"
-sudo systemctl enable --now NetworkManager bluetooth power-profiles-daemon 2>/dev/null || true
-sudo systemctl enable --now tailscaled 2>/dev/null || echo "tailscaled installed but not started — run: sudo tailscale up"
-systemctl --user enable hypridle 2>/dev/null || true
+sudo systemctl enable --now NetworkManager bluetooth power-profiles-daemon tailscaled
+
+echo "==> security baseline"
+"$DOT/install/security-postinstall.sh"
 
 echo
 echo "MANUAL (need your password/session, not scripted):"
 echo "  1. sudo sh -c 'grep -qxF /usr/bin/zsh /etc/shells || echo /usr/bin/zsh >> /etc/shells'; chsh -s /usr/bin/zsh"
-echo "  2. keyring PAM: add pam_gnome_keyring auth+session lines to /etc/pam.d/login"
+echo "  2. audit/install packages/aur.txt (never automated)"
 echo "  3. sudo tailscale up   (interactive auth, never in scripts)"
-echo "  4. reboot; SUPER+Enter → zsh; noctalia bar should appear"
-echo "  5. relog once more for screencopy grants; Super+Space launcher, Super+D display, theme-set <name>"
+echo "  4. install/security-hardened-uki.sh; one-shot test before changing the default"
+echo "  5. reboot; SUPER+Enter → zsh; noctalia bar should appear"
+echo "  6. install/security-verify.sh"
