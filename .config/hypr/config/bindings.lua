@@ -20,10 +20,6 @@ local focus_home = nil
 hl.bind(mod .. " + F", function()
   local ws = hl.get_active_workspace()
   local cur = ws and ws.id or nil
-  hl.notification.create({
-    text = "focus: cur=" .. tostring(cur) .. " home=" .. tostring(focus_home),
-    duration = 2500,
-  })
   if focus_home ~= nil and cur == FOCUS_WS then
     hl.dispatch(hl.dsp.window.move({ workspace = focus_home }))
     focus_home = nil
