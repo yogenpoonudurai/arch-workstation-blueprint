@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# screenshot-satty — region select (slurp) -> annotate (satty) -> save + clipboard.
+set -euo pipefail
+export PATH="$HOME/.local/bin:$PATH"
+
+if ! command -v satty >/dev/null 2>&1; then
+  notify-send "Screenshot" "satty not installed: sudo pacman -S satty" 2>/dev/null || true
+  exit 1
+fi
+
+OUT="$HOME/Pictures/Screenshots"
+mkdir -p "$OUT"
+FILE="$OUT/shot-$(date +%Y%m%d-%H%M%S).png"
+
+REGION="$(slurp -d 2>/dev/null || true)"
+[ -z "${REGION:-}" ] && exit 0 # Esc pressed
+
+grim -g "$REGION" - | satty --filename - --fullscreen --output "$FILE" --copy-command wl-copy

@@ -9,6 +9,44 @@ FOCUSED="$(hyprctl monitors -j 2>/dev/null | python3 -c 'import json,sys; ms=jso
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
+# Persist explicit scale into the ACTIVE monitors file (config/ wins when present).
+persist_scale() {
+  local out="$1" factor="$2"
+  local f="$HOME/.config/hypr/config/monitors.lua"
+  [ -f "$f" ] || f="$HOME/.config/hypr/monitors.lua"
+  [ -f "$f" ] || return 0
+  cp -a "$f" "$f.bak-$(date +%Y%m%d-%H%M%S)"
+  python3 - "$f" "$out" "$factor" <<'PY'
+import re, sys
+path, out, factor = sys.argv[1], sys.argv[2], sys.argv[3]
+text = open(path).read()
+new_block = (
+    'hl.monitor({\n'
+    '  output = "{o}",\n'
+    '  mode = "preferred",\n'
+    '  position = "auto",\n'
+    '  scale = "{s}",\n'
+    '})'
+).format(o=out, s=factor)
+# Replace the first (active, non-commented) hl.monitor block only
+lines = text.splitlines(keepends=True)
+start = next((i for i, l in enumerate(lines)
+              if l.startswith("hl.monitor({")), None)
+if start is None:
+    sys.exit(f"no active hl.monitor block in {path}")
+depth = 0
+end = start
+for i in range(start, len(lines)):
+    depth += lines[i].count("{") - lines[i].count("}")
+    if depth == 0:
+        end = i
+        break
+lines[start:end + 1] = [new_block + "\n"]
+open(path, "w").write("".join(lines))
+print(f"persisted scale {factor} for {out}")
+PY
+}
+
 night_state() {
   if pgrep -x hyprsunset >/dev/null 2>&1; then echo "Night light: ON — Turn off";
   else echo "Night light: ON — Turn on (3500K)"; fi
@@ -22,6 +60,7 @@ main() {
     "Layout: Extend — external right" \
     "Layout: Mirror to external" \
     "Orientation: Normal / 90° / 180° / 270°" \
+    "Scale: 100% / 125% / 150% / 200%" \
     "$(night_state)" \
     "Night light: Warmer (-500K)" \
     "Night light: Cooler (+500K)" \
@@ -52,6 +91,19 @@ main() {
         *"270"*) hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,3" ;;
         *)       hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,0" ;;
       esac ;;
+    "Scale:"*)
+      local scale
+      scale="$(printf '100%%\n125%%\n150%%\n200%%' | rofi -dmenu -i -p "Scale $FOCUSED" -theme "$THEME" || true)"
+      local factor=""
+      case "$scale" in
+        "100%"*) factor=1 ;;
+        "125%"*) factor=1.25 ;;
+        "150%"*) factor=1.5 ;;
+        "200%"*) factor=2 ;;
+        *) exit 0 ;;
+      esac
+      hyprctl keyword monitor "$FOCUSED,preferred,auto,$factor"
+      persist_scale "$FOCUSED" "$factor" ;;
     "Night light: ON — Turn on"*)
       if have hyprsunset; then uwsm app -- hyprsunset --temperature 3500 >/dev/null 2>&1 &
       else notify-send "Display" "hyprsunset not installed (sudo pacman -S hyprsunset)" || true; fi ;;
