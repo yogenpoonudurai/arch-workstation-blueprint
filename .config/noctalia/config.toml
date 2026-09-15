@@ -1,0 +1,163 @@
+# Noctalia config — premium minimal, OLED Zenbook 14, Hyprland 0.56.2
+# Single-shell: replaces waybar/swaync/wlogout/walker. Hot-reloads.
+
+[accessibility]
+ui_scale = 1.0
+
+[shell]
+font_family = "Inter"
+corner_radius_scale = 1.0
+time_format = "{:%H:%M}"
+date_format = "%a %d %b"
+clipboard_enabled = true
+clipboard_history_max_entries = 100
+polkit_agent = false
+
+[shell.animation]
+enabled = true
+speed = 1.25
+
+[shell.shadow]
+direction = "down"
+alpha = 0.45
+
+[shell.panel]
+transparency_mode = "soft"
+borders = true
+shadow = true
+launcher_placement = "floating"
+clipboard_placement = "floating"
+control_center_placement = "floating"
+wallpaper_placement = "floating"
+session_placement = "floating"
+launcher_position = "center"
+clipboard_position = "center"
+
+[shell.launcher]
+show_icons = true
+compact = false
+sort_by_usage = true
+pinned = ["alacritty", "nautilus", "brave", "chromium"]
+
+[shell.launcher.providers.calculator]
+prefix = "calc"
+global = true
+
+[wallpaper]
+enabled = true
+fill_mode = "crop"
+transition = ["fade", "zoom"]
+transition_duration = 800
+edge_smoothness = 0.3
+transition_on_startup = false
+directory = "~/Pictures/Wallpapers"
+
+[theme]
+mode = "dark"
+source = "wallpaper"
+pure_black_dark = false
+
+[notification]
+enable_daemon = true
+show_app_name = true
+show_actions = true
+layer = "top"
+background_opacity = 0.97
+offset_x = 20
+offset_y = 8
+
+[osd]
+position = "top_right"
+orientation = "horizontal"
+scale = 1.0
+background_opacity = 0.95
+offset_x = 20
+offset_y = 40
+
+[osd.kinds]
+volume = true
+volume_output = true
+volume_input = true
+brightness = true
+wifi = true
+bluetooth = true
+power_profile = true
+nightlight = true
+dnd = true
+lock_keys = true
+keyboard_layout = true
+privacy = true
+
+[lockscreen]
+enabled = true
+blurred_desktop = false
+blur_intensity = 0.5
+tint_intensity = 0.35
+
+[system.monitor]
+enabled = true
+
+[brightness]
+enable_ddcutil = false
+
+[nightlight]
+enabled = false
+temperature_day = 6500
+temperature_night = 4000
+
+[location]
+auto_locate = false
+
+[bar.main]
+position = "top"
+thickness = 32
+background_opacity = 0.92
+radius = 12
+margin_ends = 12
+margin_edge = 8
+padding = 10
+widget_spacing = 6
+shadow = true
+auto_hide = false
+reserve_space = true
+capsule = false
+start = ["launcher", "workspaces"]
+center = ["clock"]
+end = ["media", "network", "volume", "battery", "control-center"]
+
+[dock]
+enabled = false
+position = "bottom"
+icon_size = 40
+main_axis_padding = 12
+cross_axis_padding = 8
+item_spacing = 6
+background_opacity = 0.85
+radius = 16
+margin_edge = 10
+shadow = true
+show_running = true
+auto_hide = false
+reserve_space = true
+layer = "top"
+magnification = true
+magnification_scale = 1.35
+active_opacity = 1.0
+inactive_opacity = 0.85
+show_dots = true
+launcher_position = "start"
+launcher_icon = "grid-dots"
+pinned = ["alacritty", "org.gnome.Nautilus", "brave", "chromium"]
+
+[[control_center.shortcuts]]
+type = "wifi"
+[[control_center.shortcuts]]
+type = "bluetooth"
+[[control_center.shortcuts]]
+type = "nightlight"
+[[control_center.shortcuts]]
+type = "notification"
+[[control_center.shortcuts]]
+type = "wallpaper"
+[[control_center.shortcuts]]
+type = "session"

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# screenshot — grim+slurp+wl-copy, save + clipboard
+# usage: screenshot [full|selection|window]
+set -euo pipefail
+DIR="$HOME/Pictures/Screenshots"
+mkdir -p "$DIR"
+FILE="$DIR/$(date +%Y%m%d-%H%M%S).png"
+MODE="${1:-selection}"
+case "$MODE" in
+  full) grim "$FILE" ;;
+  window)
+    GEO=$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' 2>/dev/null || true)
+    if [ -n "${GEO:-}" ]; then grim -g "$GEO" "$FILE"; else grim "$FILE"; fi
+    ;;
+  *) grim -g "$(slurp)" "$FILE" ;;
+esac
+wl-copy < "$FILE"
+echo "$FILE"

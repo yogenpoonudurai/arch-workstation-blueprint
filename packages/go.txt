@@ -1,0 +1,3 @@
+# go tools (go install <module>@<version>). Bins land in ~/go/bin (on PATH via .zshrc).
+github.com/air-verse/air@latest
+gotest.tools/gotestsum@latest

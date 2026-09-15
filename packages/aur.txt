@@ -1,0 +1,6 @@
+bibata-cursor-theme
+brave-bin
+pacsea-bin
+pacseek
+yay
+yay-debug

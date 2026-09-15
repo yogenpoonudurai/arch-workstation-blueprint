@@ -3,10 +3,10 @@
 -- applied live by monitor-menu via `hyprctl keyword monitor ...`.
 -- Detected: eDP-1 1920x1200@60 scale 1.5 (laptop panel, Samsung)
 hl.monitor({
-	output = "",
-	mode = "preferred",
-	position = "auto",
-	scale = 1,
+  output = "",
+  mode = "preferred",
+  position = "auto",
+  scale = "auto",
 })
 
 -- Profiles (uncomment + `hyprctl reload` to persist; monitor-menu applies live):

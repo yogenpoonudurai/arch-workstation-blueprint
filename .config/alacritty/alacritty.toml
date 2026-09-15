@@ -2,7 +2,7 @@
 import = ["~/.config/alacritty/colors-alacritty.toml"]
 
 [terminal]
-shell = "bash"
+shell = "zsh"
 
 [window]
 opacity = 1.0

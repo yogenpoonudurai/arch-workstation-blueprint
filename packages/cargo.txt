@@ -1,0 +1,2 @@
+# cargo tools (cargo install). Empty: Rust dev tools come from pacman
+# (bacon, cargo-nextest) + rustup components. Add one per line if needed.

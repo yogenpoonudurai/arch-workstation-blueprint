@@ -16,12 +16,13 @@ link() {
   echo "link: $dst -> $src"
 }
 
-# configs
-for d in hypr waybar rofi swaync alacritty tmux gtk-3.0 gtk-4.0 matugen nvim theme; do
+# configs (noctalia/quickshell first = single-shell goal; legacy waybar/rofi/swaync kept until removal)
+for d in hypr noctalia quickshell alacritty tmux gtk-3.0 gtk-4.0 matugen nvim theme waybar rofi swaync; do
   [ -d "$DOT/.config/$d" ] || continue
   # symlink individual files to avoid clobbering runtime dirs
   for f in $(cd "$DOT/.config/$d" && find . -type f | sort); do
-    link "$DOT/.config/$d/$f" "$HOME/.config/$d/$f"
+    rel="${f#./}"
+    link "$DOT/.config/$d/$rel" "$HOME/.config/$d/$rel"
   done
 done
 

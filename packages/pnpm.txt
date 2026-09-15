@@ -1,0 +1,5 @@
+# pnpm globals (pnpm add -g). Bin dir ~/.local/share/pnpm/bin (on PATH via .zshrc).
+tsx
+oxlint
+biome
+typescript
