@@ -1,5 +1,0 @@
-@import "base.rasi"
-/* Power menu — compact, few rows */
-window { width: 320px; }
-listview { lines: 5; }
-element { horizontal-align: 0.5; }

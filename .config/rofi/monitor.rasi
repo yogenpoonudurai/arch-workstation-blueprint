@@ -1,9 +1,0 @@
-@import "base.rasi"
-/* Display menu — larger type, accent prompt */
-* { font: "Noto Sans 12"; }
-window { width: 560px; }
-prompt {
-  text-color: @accent;
-  font: "Noto Sans Bold 12";
-}
-entry { placeholder: "Display — layout · rotate · night light…"; }

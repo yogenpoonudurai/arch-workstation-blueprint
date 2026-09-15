@@ -81,25 +81,6 @@ def main() -> None:
         f"@define-color yellow {yellow};\n@define-color red {red};\n"
         f"@define-color green {green};\n"
     )
-    (THEME / "colors-waybar.css").write_text(css)
-    (HOME / ".config/waybar/colors-waybar.css").write_text(css)
-    (THEME / "colors-swaync.css").write_text(css)
-    (HOME / ".config/swaync/colors-swaync.css").write_text(css)
-
-    rasi = (
-        "* {\n" + "".join(
-            f"  {k}: {v}ff;\n"
-            for k, v in [
-                ("bg", bg), ("dark-bg", dark_bg), ("surface", surface),
-                ("lighter-bg", lighter_bg), ("selection", selection),
-                ("border", border), ("fg", fg), ("dark-fg", dark_fg),
-                ("muted", muted), ("accent", accent), ("yellow", yellow),
-                ("red", red), ("green", green),
-            ]
-        ) + "}\n"
-    )
-    (THEME / "colors-rofi.rasi").write_text(rasi)
-    (HOME / ".config/rofi/colors-rofi.rasi").write_text(rasi)
 
     hypr = (
         "return {\n" + "".join(
@@ -159,10 +140,6 @@ def main() -> None:
     if no_reload:
         return
     subprocess.run(["hyprctl", "reload"], capture_output=True)
-    wb = subprocess.run(["pkill", "-SIGUSR2", "waybar"], capture_output=True)
-    if wb.returncode != 0:
-        subprocess.run(["pkill", "waybar"], capture_output=True)
-    subprocess.run(["swaync-client", "-rs"], capture_output=True)
 
 
 if __name__ == "__main__":

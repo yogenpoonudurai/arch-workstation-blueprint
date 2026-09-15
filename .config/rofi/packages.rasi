@@ -1,4 +1,0 @@
-@import "base.rasi"
-/* Package menus — wider for name + description rows */
-window { width: 640px; }
-listview { lines: 12; }

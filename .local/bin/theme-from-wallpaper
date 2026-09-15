@@ -146,6 +146,5 @@ bright_magenta = "#bb9af7"
 PY
 
 theme-render
-# hyprpaper 0.8.x has no preload/wallpaper IPC; it reads hyprpaper.conf on start
-systemctl --user restart hyprpaper.service >/dev/null 2>&1 || uwsm app -- hyprpaper >/dev/null 2>&1 &
+# Wallpaper is owned by Noctalia; nothing else to restart here.
 echo "Theme applied from $SRC"
