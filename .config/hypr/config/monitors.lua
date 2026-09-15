@@ -1,6 +1,6 @@
 -- monitors.lua — validated for Hyprland 0.56.2 Lua API
 -- Safe fallback: auto-detect single or multi-monitor. Profiles below are
--- applied live by monitor-menu via `hyprctl keyword monitor ...`.
+-- applied live via `hyprctl eval` (Super+D display panel).
 -- Detected: eDP-1 1920x1200@60 scale 1.5 (laptop panel, Samsung)
 hl.monitor({
   output = "",
@@ -9,7 +9,7 @@ hl.monitor({
   scale = "auto",
 })
 
--- Profiles (uncomment + `hyprctl reload` to persist; monitor-menu applies live):
+-- Profiles (uncomment + `hyprctl reload` to persist):
 -- Laptop only:
 -- hl.monitor({ output = "eDP-1", mode = "preferred", position = "0x0", scale = "auto" })
 -- Extend right (external 1080p right of laptop):

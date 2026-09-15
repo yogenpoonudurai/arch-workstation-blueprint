@@ -12,8 +12,8 @@
 
   "custom/arch": {
     "format": "",
-    "on-click": "uwsm app -- /home/yp/.local/bin/unified-launcher",
-    "on-click-right": "uwsm app -- /home/yp/.local/bin/arch-menu",
+    "on-click": "noctalia msg panel-toggle launcher",
+    "on-click-right": "noctalia msg panel-toggle launcher",
     "tooltip": false
   },
   "hyprland/workspaces": {
@@ -61,8 +61,8 @@
     "format-charging": "󰂄",
     "tooltip-format": "Power: {capacity}% — click for profiles",
     "states": { "warning": 30, "critical": 15 },
-    "on-click": "uwsm app -- /home/yp/.local/bin/power-profiles-menu",
-    "on-click-right": "uwsm app -- /home/yp/.local/bin/power-menu"
+    "on-click": "noctalia msg panel-toggle session",
+    "on-click-right": "noctalia msg panel-toggle session"
   },
   "clock": {
     "format": "{:%H:%M}",

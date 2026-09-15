@@ -27,7 +27,7 @@ hl.bind(mod .. " + B", hl.dsp.exec_cmd("uwsm app -- brave 2>/dev/null || uwsm ap
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("noctalia msg panel-toggle notifications 2>/dev/null || noctalia msg notification-invoke-latest"))
 hl.bind(mod .. " + SHIFT + N", hl.dsp.exec_cmd("noctalia msg notification-clear-active"))
 hl.bind(mod .. " + SHIFT + O", hl.dsp.exec_cmd("uwsm app -- hyprlock"))
-hl.bind(mod .. " + D", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/monitor-menu"))
+hl.bind(mod .. " + D", hl.dsp.exec_cmd("noctalia msg panel-toggle control-center display"))
 hl.bind(mod .. " + E", hl.dsp.exec_cmd("uwsm app -- nautilus 2>/dev/null || uwsm app -- alacritty"))
 hl.bind(mod .. " + C", hl.dsp.exec_cmd("noctalia msg panel-toggle control-center"))
 hl.bind(mod .. " + SHIFT + C", hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard"))
