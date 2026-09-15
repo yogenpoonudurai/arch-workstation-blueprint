@@ -1,50 +1,40 @@
 #!/usr/bin/env bash
-# monitor-menu — single Display menu: layout / orientation / night light / brightness
-# Live-applies via hyprctl; persists layout choice as commented hint (monitors.lua stays safe fallback).
+# monitor-menu — single Display menu: layout / orientation / scale / night light / brightness
+# Single-monitor tweaks apply live via `hyprctl eval` (hyprctl keyword is
+# disabled under Lua config: "keyword can't work with non-legacy parsers").
+# Multi-monitor layouts persist to monitors.lua + reload (always reliable).
 set -euo pipefail
 export PATH="$HOME/.local/bin:$PATH"
 
 THEME="${ROFI_THEME:-$HOME/.config/rofi/monitor.rasi}"
+MONF="$HOME/.config/hypr/config/monitors.lua"
+[ -f "$MONF" ] || MONF="$HOME/.config/hypr/monitors.lua"
 FOCUSED="$(hyprctl monitors -j 2>/dev/null | python3 -c 'import json,sys; ms=json.load(sys.stdin); print(next((m["name"] for m in ms if m.get("focused")), ms[0]["name"] if ms else "eDP-1"))' 2>/dev/null || echo eDP-1)"
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
-# Persist explicit scale into the ACTIVE monitors file (config/ wins when present).
-persist_scale() {
-  local out="$1" factor="$2"
-  local f="$HOME/.config/hypr/config/monitors.lua"
-  [ -f "$f" ] || f="$HOME/.config/hypr/monitors.lua"
-  [ -f "$f" ] || return 0
-  cp -a "$f" "$f.bak-$(date +%Y%m%d-%H%M%S)"
-  python3 - "$f" "$out" "$factor" <<'PY'
-import re, sys
-path, out, factor = sys.argv[1], sys.argv[2], sys.argv[3]
-text = open(path).read()
-new_block = (
-    'hl.monitor({\n'
-    '  output = "{o}",\n'
-    '  mode = "preferred",\n'
-    '  position = "auto",\n'
-    '  scale = "{s}",\n'
-    '})'
-).format(o=out, s=factor)
-# Replace the first (active, non-commented) hl.monitor block only
-lines = text.splitlines(keepends=True)
-start = next((i for i, l in enumerate(lines)
-              if l.startswith("hl.monitor({")), None)
-if start is None:
-    sys.exit(f"no active hl.monitor block in {path}")
-depth = 0
-end = start
-for i in range(start, len(lines)):
-    depth += lines[i].count("{") - lines[i].count("}")
-    if depth == 0:
-        end = i
-        break
-lines[start:end + 1] = [new_block + "\n"]
-open(path, "w").write("".join(lines))
-print(f"persisted scale {factor} for {out}")
-PY
+# Live single-monitor reconfig via Lua eval. Arg is hl.monitor table fields.
+mrun() {
+  hyprctl eval "hl.monitor({output=\"$FOCUSED\", $1})"
+}
+
+backup_monf() {
+  cp -a "$MONF" "$MONF.bak-$(date +%Y%m%d-%H%M%S)"
+}
+
+# Write a full multi-monitor file, validate via reload, restore on error.
+apply_layout_file() {
+  backup_monf
+  printf '%s\n' "$1" > "$MONF"
+  hyprctl reload >/dev/null 2>&1
+  sleep 1
+  if hyprctl configerrors 2>&1 | grep -q .; then
+    local last; last="$(ls -t "$MONF".bak-* | head -n1)"
+    cp -a "$last" "$MONF"
+    hyprctl reload >/dev/null 2>&1 || true
+    notify-send "Display" "Layout rejected, restored previous config" 2>/dev/null || true
+    return 1
+  fi
 }
 
 night_state() {
@@ -69,27 +59,58 @@ main() {
   [ -z "${choice:-}" ] && exit 0
   case "$choice" in
     "Layout: Auto"*)
-      hyprctl keyword monitor ",preferred,auto,auto" ;;
+      mrun 'mode = "preferred", position = "auto", scale = "auto"' ;;
     "Layout: Laptop only"*)
-      hyprctl keyword monitor "$FOCUSED,preferred,0x0,auto"
-      hyprctl keyword monitor ",disable" 2>/dev/null || true
-      hyprctl reload ;;
+      apply_layout_file "hl.monitor({
+  output = \"$FOCUSED\",
+  mode = \"preferred\",
+  position = \"0x0\",
+  scale = \"auto\",
+})" ;;
     "Layout: Extend"*)
-      hyprctl keyword monitor "$FOCUSED,preferred,0x0,auto"
-      hyprctl keyword monitor ",preferred,auto-right,auto" ;;
+      apply_layout_file "hl.monitor({
+  output = \"$FOCUSED\",
+  mode = \"preferred\",
+  position = \"0x0\",
+  scale = \"auto\",
+})
+hl.monitor({
+  output = \"HDMI-A-1\",
+  mode = \"preferred\",
+  position = \"auto-right\",
+  scale = \"auto\",
+})
+hl.monitor({
+  output = \"DP-1\",
+  mode = \"preferred\",
+  position = \"auto-right\",
+  scale = \"auto\",
+})" ;;
     "Layout: Mirror"*)
       local ext
       ext="$(hyprctl monitors -j 2>/dev/null | python3 -c 'import json,sys; ms=json.load(sys.stdin); print(next((m["name"] for m in ms if m["name"]!="'"$FOCUSED"'"), ""))' || true)"
       [ -z "$ext" ] && { notify-send "Display" "No external monitor detected" || true; exit 0; }
-      hyprctl keyword monitor "$ext,preferred,0x0,auto,mirror,$FOCUSED" ;;
+      apply_layout_file "hl.monitor({
+  output = \"$FOCUSED\",
+  mode = \"preferred\",
+  position = \"0x0\",
+  scale = \"auto\",
+})
+hl.monitor({
+  output = \"$ext\",
+  mode = \"preferred\",
+  position = \"0x0\",
+  scale = \"auto\",
+  mirror = \"$FOCUSED\",
+})" ;;
     "Orientation"*)
       local rot
       rot="$(printf 'Normal (0)\n90° (1)\n180° (2)\n270° (3)' | rofi -dmenu -i -p "Rotate $FOCUSED" -theme "$THEME" || true)"
       case "$rot" in
-        *"90"*)  hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,1" ;;
-        *"180"*) hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,2" ;;
-        *"270"*) hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,3" ;;
-        *)       hyprctl keyword monitor "$FOCUSED,preferred,auto,auto,transform,0" ;;
+        *"90"*)  mrun 'mode = "preferred", position = "auto", scale = "auto", transform = 1' ;;
+        *"180"*) mrun 'mode = "preferred", position = "auto", scale = "auto", transform = 2' ;;
+        *"270"*) mrun 'mode = "preferred", position = "auto", scale = "auto", transform = 3' ;;
+        *)       mrun 'mode = "preferred", position = "auto", scale = "auto", transform = 0' ;;
       esac ;;
     "Scale:"*)
       local scale
@@ -102,7 +123,7 @@ main() {
         "200%"*) factor=2 ;;
         *) exit 0 ;;
       esac
-      hyprctl keyword monitor "$FOCUSED,preferred,auto,$factor"
+      mrun "mode = \"preferred\", position = \"auto\", scale = \"$factor\""
       persist_scale "$FOCUSED" "$factor" ;;
     "Night light: ON — Turn on"*)
       if have hyprsunset; then uwsm app -- hyprsunset --temperature 3500 >/dev/null 2>&1 &
@@ -120,6 +141,43 @@ main() {
       if have brightnessctl; then brightnessctl -e4 -n2 set 10%-
       elif have ddcutil; then ddcutil setvcp 10 - 10 || true; fi ;;
   esac
+}
+
+# Persist explicit scale into the ACTIVE monitors file (config/ wins when present).
+persist_scale() {
+  local out="$1" factor="$2"
+  local f="$HOME/.config/hypr/config/monitors.lua"
+  [ -f "$f" ] || f="$HOME/.config/hypr/monitors.lua"
+  [ -f "$f" ] || return 0
+  cp -a "$f" "$f.bak-$(date +%Y%m%d-%H%M%S)"
+  python3 - "$f" "$out" "$factor" <<'PY'
+import sys
+path, out, factor = sys.argv[1], sys.argv[2], sys.argv[3]
+text = open(path).read()
+new_block = (
+    'hl.monitor({\n'
+    '  output = "{o}",\n'
+    '  mode = "preferred",\n'
+    '  position = "auto",\n'
+    '  scale = "{s}",\n'
+    '})'
+).format(o=out, s=factor)
+lines = text.splitlines(keepends=True)
+start = next((i for i, l in enumerate(lines)
+              if l.startswith("hl.monitor({")), None)
+if start is None:
+    sys.exit(f"no active hl.monitor block in {path}")
+depth = 0
+end = start
+for i in range(start, len(lines)):
+    depth += lines[i].count("{") - lines[i].count("}")
+    if depth == 0:
+        end = i
+        break
+lines[start:end + 1] = [new_block + "\n"]
+open(path, "w").write("".join(lines))
+print(f"persisted scale {factor} for {out}")
+PY
 }
 
 main
