@@ -48,13 +48,30 @@ pick_monitor() {
   mons_json | python3 -c 'import json,sys; print("\n".join(m["name"] for m in json.load(sys.stdin)))' | pick "Monitor"
 }
 
+# Current live state of a monitor: "mode|pos|scale|transform" (mode exact-matched).
+mon_state() {
+  mons_json | python3 -c '
+import json, sys
+want = sys.argv[1]
+ms = json.load(sys.stdin)
+m = next(x for x in ms if x["name"] == want)
+tag = str(m["width"]) + "x" + str(m["height"]) + "@"
+mode = next((a for a in m.get("availableModes", []) if a.startswith(tag)), "preferred")
+print(mode + "|" + str(m["x"]) + "x" + str(m["y"]) + "|" + str(m["scale"]) + "|" + str(m.get("transform", 0)))
+' "$1"
+}
+
 do_resolution() {
   local out="$1"
   local modes; modes="$(mons_json | python3 -c 'import json,sys; ms=json.load(sys.stdin); print("\n".join(next(m["availableModes"] for m in ms if m["name"]=="'"$out"'")))')"
   [ -z "$modes" ] && { notify-send "Display" "No modes for $out" 2>/dev/null || true; return 1; }
   local mode; mode="$(printf '%s' "$modes" | pick "Resolution $out")"
   [ -z "${mode:-}" ] && return 0
-  mrun "$out" "mode = \"$mode\", position = \"auto\", scale = \"auto\""
+  local st pos scale
+  st="$(mon_state "$out")"; pos="${st#*|}"; pos="${pos%%|*}"; scale="$(echo "$st" | cut -d'|' -f3)"
+  mrun "$out" "mode = \"$mode\", position = \"$pos\", scale = \"$scale\""
+  sleep 2
+  persist_full
 }
 
 do_orientation() {
@@ -62,7 +79,11 @@ do_orientation() {
   local rot; rot="$(printf 'Normal (0)\n90° (1)\n180° (2)\n270° (3)' | pick "Rotate $out")"
   local t=0
   case "$rot" in *"90"*) t=1;; *"180"*) t=2;; *"270"*) t=3;; "" ) return 0;; esac
-  mrun "$out" "mode = \"preferred\", position = \"auto\", scale = \"auto\", transform = $t"
+  local st mode pos scale
+  st="$(mon_state "$out")"; mode="${st%%|*}"; pos="$(echo "$st" | cut -d'|' -f2)"; scale="$(echo "$st" | cut -d'|' -f3)"
+  mrun "$out" "mode = \"$mode\", position = \"$pos\", scale = \"$scale\", transform = $t"
+  sleep 2
+  persist_full
 }
 
 do_scale() {
@@ -70,7 +91,28 @@ do_scale() {
   local s; s="$(printf '100%%\n125%%\n150%%\n175%%\n200%%' | pick "Scale $out")"
   local f=""
   case "$s" in "100%"*) f=1;; "125%"*) f=1.25;; "150%"*) f=1.5;; "175%"*) f=1.75;; "200%"*) f=2;; *) return 0;; esac
-  mrun "$out" "mode = \"preferred\", position = \"auto\", scale = \"$f\""
+  local st mode pos
+  st="$(mon_state "$out")"; mode="${st%%|*}"; pos="$(echo "$st" | cut -d'|' -f2)"
+  mrun "$out" "mode = \"$mode\", position = \"$pos\", scale = \"$f\""
+  sleep 2
+  persist_full
+}
+
+# Persist the full live layout (all monitors) so reloads keep positions.
+persist_full() {
+  backup_mons
+  mons_json | python3 -c '
+import json, sys
+blocks = []
+for m in json.load(sys.stdin):
+    tag = str(m["width"]) + "x" + str(m["height"]) + "@"
+    mode = next((a for a in m.get("availableModes", []) if a.startswith(tag)), "preferred")
+    extra = ""
+    if m.get("transform", 0):
+        extra = ",\n  transform = " + str(m.get("transform", 0))
+    blocks.append("hl.monitor({\n  output = \"" + m["name"] + "\",\n  mode = \"" + mode + "\",\n  position = \"" + str(m["x"]) + "x" + str(m["y"]) + "\",\n  scale = \"" + str(m["scale"]) + "\"" + extra + "\n})")
+print("\n".join(blocks))
+' > "$MONF"
 }
 
 do_layout() {
