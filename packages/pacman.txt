@@ -40,7 +40,6 @@ gvfs
 hypridle
 hyprland
 hyprlock
-hyprpaper
 hyprpolkitagent
 hyprshutdown
 hyprsunset
@@ -88,6 +87,7 @@ quickshell
 ripgrep
 rsync
 rustup
+satty
 slurp
 sof-firmware
 starship

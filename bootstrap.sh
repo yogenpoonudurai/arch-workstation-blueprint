@@ -63,14 +63,10 @@ while read -r c; do
   cargo install "$c"
 done < "$PKG/cargo.txt"
 
-echo "==> OMZ (if missing)"
-[ -d "$HOME/.oh-my-zsh" ] || git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh"
-[ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ] || git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
-[ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ] || git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
-
 echo "==> services (no auth tokens baked in)"
-sudo systemctl enable --now NetworkManager bluetooth 2>/dev/null || true
+sudo systemctl enable --now NetworkManager bluetooth power-profiles-daemon 2>/dev/null || true
 sudo systemctl enable --now tailscaled 2>/dev/null || echo "tailscaled installed but not started — run: sudo tailscale up"
+systemctl --user enable hypridle 2>/dev/null || true
 
 echo
 echo "MANUAL (need your password/session, not scripted):"
@@ -78,3 +74,4 @@ echo "  1. sudo sh -c 'grep -qxF /usr/bin/zsh /etc/shells || echo /usr/bin/zsh >
 echo "  2. keyring PAM: add pam_gnome_keyring auth+session lines to /etc/pam.d/login"
 echo "  3. sudo tailscale up   (interactive auth, never in scripts)"
 echo "  4. reboot; SUPER+Enter → zsh; noctalia bar should appear"
+echo "  5. relog once more for screencopy grants; Super+Space launcher, Super+D display, theme-set <name>"
