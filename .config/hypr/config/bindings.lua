@@ -20,9 +20,11 @@ local focus_home = nil
 hl.bind(mod .. " + F", function()
   local ws = hl.get_active_workspace()
   local cur = ws and ws.id or nil
-  if focus_home ~= nil and cur == FOCUS_WS then
-    hl.dispatch(hl.dsp.window.move({ workspace = focus_home }))
+  if focus_home ~= nil and tostring(cur) == tostring(FOCUS_WS) then
+    local home = focus_home
     focus_home = nil
+    hl.dispatch(hl.dsp.window.move({ workspace = home }))
+    hl.dispatch(hl.dsp.focus({ workspace = home }))
   else
     focus_home = cur
     hl.dispatch(hl.dsp.window.move({ workspace = FOCUS_WS }))
