@@ -11,11 +11,10 @@ hl.bind(mod .. " + W", hl.dsp.window.close())
 hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher"))
 hl.bind(mod .. " + SHIFT + SPACE", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher /emo || noctalia msg panel-toggle launcher"))
 
--- Spec: SUPER+M → power/exit UI, SUPER+F file manager, SUPER+SHIFT+F fullscreen
+-- Spec: SUPER+M → power/exit UI, SUPER+F fullscreen toggle (Omarchy-style)
 hl.bind(mod .. " + M", hl.dsp.exec_cmd("noctalia msg panel-toggle session || noctalia msg panel-toggle control-center"))
 hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("noctalia msg panel-toggle session"))
-hl.bind(mod .. " + F", hl.dsp.exec_cmd("uwsm app -- /usr/bin/nautilus"))
-hl.bind(mod .. " + SHIFT + F", hl.dsp.exec_cmd("hyprctl dispatch fullscreen 1"))
+hl.bind(mod .. " + F", hl.dsp.exec_cmd("hyprctl dispatch fullscreen 0"))
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 
 -- Window tiling
