@@ -6,6 +6,7 @@ local mod = "SUPER"
 
 -- Core (recovery-safe)
 hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd("uwsm app -- alacritty"))
+hl.bind(mod .. " + ALT + RETURN", hl.dsp.exec_cmd("uwsm app -- alacritty -e tmux new-session -A -s main"))
 hl.bind(mod .. " + Q", hl.dsp.window.close())
 hl.bind(mod .. " + W", hl.dsp.window.close())
 hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher"))

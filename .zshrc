@@ -63,6 +63,8 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias n='nvim'
 alias h='hyprctl'
+# Silent AUR installs (bare `yay` stays interactive so -Syu never runs unattended)
+alias yayi='yay -S --noconfirm --answerdiff None --answerclean None'
 
 # --- fzf integration (installed) ---
 [ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh

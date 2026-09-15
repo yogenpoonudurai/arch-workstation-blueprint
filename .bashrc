@@ -7,6 +7,8 @@
 
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
+# Silent AUR installs (bare `yay` stays interactive so -Syu never runs unattended)
+alias yayi='yay -S --noconfirm --answerdiff None --answerclean None'
 
 # starship prompt (only if installed: sudo pacman -S starship)
 if command -v starship >/dev/null 2>&1; then
