@@ -12,11 +12,27 @@ hl.bind(mod .. " + SPACE", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher")
 hl.bind(mod .. " + SHIFT + SPACE", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher /emo || noctalia msg panel-toggle launcher"))
 
 -- Spec: SUPER+M → power/exit UI
--- NOTE: Super+F (fullscreen toggle) is UNAVAILABLE on Hyprland 0.56.2:
---   - hyprctl dispatch mangles all args (Lua-wrapper bug),
---   - no hl.dsp fullscreen dispatcher object exists,
---   - hl.window.* is nil in user Lua (verified via press-time error).
--- Left unbound pending upstream fix; see issue text in commit message.
+-- Interim focus mode on Super+F (true fullscreen unreachable on 0.56.2:
+-- hyprctl dispatch mangles args, no hl.dsp fullscreen object, hl.window nil).
+-- Workspace 10 is the focus room (Super+0 also lands there).
+local FOCUS_WS = 10
+local focus_home = nil
+hl.bind(mod .. " + F", function()
+  local ws = hl.get_active_workspace()
+  local cur = ws and ws.id or nil
+  hl.notification.create({
+    text = "focus: cur=" .. tostring(cur) .. " home=" .. tostring(focus_home),
+    duration = 2500,
+  })
+  if focus_home ~= nil and cur == FOCUS_WS then
+    hl.dispatch(hl.dsp.window.move({ workspace = focus_home }))
+    focus_home = nil
+  else
+    focus_home = cur
+    hl.dispatch(hl.dsp.window.move({ workspace = FOCUS_WS }))
+    hl.dispatch(hl.dsp.focus({ workspace = FOCUS_WS }))
+  end
+end)
 hl.bind(mod .. " + M", hl.dsp.exec_cmd("noctalia msg panel-toggle session || noctalia msg panel-toggle control-center"))
 hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("noctalia msg panel-toggle session"))
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
