@@ -3,6 +3,9 @@
 An opinionated Arch Linux workstation built around Hyprland, Noctalia,
 `linux-hardened`, AppArmor, UFW, recovery paths, and reproducible dotfiles.
 
+<img width="1920" height="1080" alt="screenshot_20260915_223855" src="https://github.com/user-attachments/assets/9d325d69-7edd-4202-9938-f84acc810652" />
+
+
 > [!WARNING]
 > This is my working configuration, not a distribution or universal installer.
 > It is tested on an AMD ASUS Zenbook 14. Review every privileged script and
