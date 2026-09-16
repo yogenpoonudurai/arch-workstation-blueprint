@@ -32,9 +32,8 @@ sudo mkinitcpio -p linux-hardened
 sudo test -f "$HARDENED_UKI" || die "hardened UKI was not generated"
 
 echo
-echo "Hardened UKI generated. Standard UKI remains the fallback."
+echo "Hardened UKI generated. The standard UKI remains present but must be boot-tested."
 echo "Inspect: sudo bootctl list"
-echo "Test once: sudo bootctl set-default arch-linux.efi"
-echo "           sudo bootctl set-oneshot arch-linux-hardened.efi"
-echo "           systemctl reboot"
+echo "Test standard: sudo bootctl set-oneshot arch-linux.efi; systemctl reboot"
+echo "Test hardened: sudo bootctl set-oneshot arch-linux-hardened.efi; systemctl reboot"
 echo "After validation: sudo bootctl set-default arch-linux-hardened.efi"

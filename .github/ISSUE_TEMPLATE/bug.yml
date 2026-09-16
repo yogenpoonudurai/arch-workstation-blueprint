@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a reproducible configuration or script problem
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets, tokens, private addresses, or machine identifiers.
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      placeholder: Hyprland, bootstrap, security verification, backup...
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What happened and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Provide the smallest safe reproduction.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Arch, kernel, Hyprland, Noctalia, hardware, and relevant deviations.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed secrets and personal identifiers.
+          required: true
+        - label: I reviewed the README hardware and safety warnings.
+          required: true

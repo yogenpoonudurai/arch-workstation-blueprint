@@ -3,6 +3,8 @@
 -- Uses verified hl.dsp.* + exec_cmd fallbacks for fullscreen/screenshots.
 
 local mod = "SUPER"
+local home = assert(os.getenv("HOME"), "HOME is required")
+local local_bin = home .. "/.local/bin/"
 
 -- Core (recovery-safe)
 hl.bind(mod .. " + RETURN", hl.dsp.exec_cmd("uwsm app -- alacritty"))
@@ -41,12 +43,12 @@ hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + T", hl.dsp.layout("togglesplit"))
 
 -- Launcher / tools (pacseek preferred, Noctalia panels for shell UI)
-hl.bind(mod .. " + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/package-install"))
+hl.bind(mod .. " + P", hl.dsp.exec_cmd("uwsm app -- " .. local_bin .. "package-install"))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("uwsm app -- brave 2>/dev/null || uwsm app -- chromium"))
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("noctalia msg panel-toggle notifications 2>/dev/null || noctalia msg notification-invoke-latest"))
 hl.bind(mod .. " + SHIFT + N", hl.dsp.exec_cmd("noctalia msg notification-clear-active"))
 hl.bind(mod .. " + SHIFT + O", hl.dsp.exec_cmd("uwsm app -- hyprlock"))
-hl.bind(mod .. " + D", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/monitor-ctl"))
+hl.bind(mod .. " + D", hl.dsp.exec_cmd("uwsm app -- " .. local_bin .. "monitor-ctl"))
 hl.bind(mod .. " + E", hl.dsp.exec_cmd("uwsm app -- nautilus 2>/dev/null || uwsm app -- alacritty"))
 hl.bind(mod .. " + C", hl.dsp.exec_cmd("noctalia msg panel-toggle control-center"))
 hl.bind(mod .. " + SHIFT + C", hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard"))
@@ -89,16 +91,16 @@ hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Screenshots: instant save+copy to ~/Pictures, click notification to edit in Satty
-hl.bind("Print", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant full"), { locked = true })
-hl.bind(mod .. " + Print", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant region"), { locked = true })
-hl.bind(mod .. " + SHIFT + Print", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant window"), { locked = true })
+hl.bind("Print", hl.dsp.exec_cmd("uwsm app -- " .. local_bin .. "screenshot-instant full"), { locked = true })
+hl.bind(mod .. " + Print", hl.dsp.exec_cmd("uwsm app -- " .. local_bin .. "screenshot-instant region"), { locked = true })
+hl.bind(mod .. " + SHIFT + Print", hl.dsp.exec_cmd("uwsm app -- " .. local_bin .. "screenshot-instant window"), { locked = true })
 
 -- Clipboard history (Noctalia panel; cliphist CLI as fallback)
 hl.bind(mod .. " + SHIFT + V", hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard 2>/dev/null || (cliphist list | head -n 20) || true"))
 
 -- Instant screenshot (save+copy, click notification to annotate in Satty)
-hl.bind("CTRL + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant region"))
-hl.bind("CTRL + SHIFT + P", hl.dsp.exec_cmd("uwsm app -- /home/yp/.local/bin/screenshot-instant full"))
+hl.bind("CTRL + P", hl.dsp.exec_cmd("uwsm app -- " .. local_bin .. "screenshot-instant region"))
+hl.bind("CTRL + SHIFT + P", hl.dsp.exec_cmd("uwsm app -- " .. local_bin .. "screenshot-instant full"))
 
 -- Volume / brightness / media (Noctalia OSD + direct control)
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("noctalia msg volume-up 5 2>/dev/null; wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })

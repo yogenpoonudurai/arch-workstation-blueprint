@@ -5,6 +5,7 @@ set -euo pipefail
 PAM_LOGIN=/etc/pam.d/login
 PAM_AUTH='auth       optional     pam_gnome_keyring.so'
 PAM_SESSION='session    optional     pam_gnome_keyring.so auto_start'
+DEVELOPMENT_PATH="${DEVELOPMENT_PATH:-/mnt/Development}"
 
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
 command -v sudo >/dev/null || die "sudo is required"
@@ -56,13 +57,13 @@ else
   echo "WARNING: root is not backed by a LUKS mapping" >&2
 fi
 
-if mountpoint -q /mnt/Development; then
-  development_source="$(findmnt -nro SOURCE /mnt/Development)"
+if mountpoint -q "$DEVELOPMENT_PATH"; then
+  development_source="$(findmnt -nro SOURCE "$DEVELOPMENT_PATH")"
   development_device="${development_source%%[*}"
   if lsblk -sno TYPE "$development_device" 2>/dev/null | grep -qx crypt; then
     echo "Development encryption: LUKS detected"
   else
-    echo "WARNING: /mnt/Development is not backed by a LUKS mapping" >&2
+    echo "WARNING: $DEVELOPMENT_PATH is not backed by a LUKS mapping" >&2
   fi
 fi
 

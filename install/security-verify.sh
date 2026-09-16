@@ -3,6 +3,7 @@
 set -uo pipefail
 
 failures=0
+DEVELOPMENT_PATH="${DEVELOPMENT_PATH:-/mnt/Development}"
 pass() { printf 'PASS  %s\n' "$1"; }
 fail() { printf 'FAIL  %s\n' "$1"; failures=$((failures + 1)); }
 
@@ -16,22 +17,42 @@ else
   fail "root is not backed by LUKS"
 fi
 
-if mountpoint -q /mnt/Development; then
-  development_source="$(findmnt -nro SOURCE /mnt/Development)"
+if mountpoint -q "$DEVELOPMENT_PATH"; then
+  development_source="$(findmnt -nro SOURCE "$DEVELOPMENT_PATH")"
   development_device="${development_source%%[*}"
   if lsblk -sno TYPE "$development_device" 2>/dev/null | grep -qx crypt; then
-    pass "Development backed by LUKS"
+    pass "$DEVELOPMENT_PATH backed by LUKS"
   else
-    fail "Development is not backed by LUKS"
+    fail "$DEVELOPMENT_PATH is not backed by LUKS"
   fi
 else
-  fail "/mnt/Development is not mounted"
+  fail "$DEVELOPMENT_PATH is not mounted"
 fi
 
 grep -qw apparmor /sys/kernel/security/lsm 2>/dev/null && pass "AppArmor LSM active" || fail "AppArmor LSM inactive"
 systemctl is-active --quiet apparmor && pass "AppArmor service active" || fail "AppArmor service inactive"
-systemctl is-active --quiet ufw && pass "UFW active" || fail "UFW inactive"
-grep -q '^DEFAULT_INPUT_POLICY="DROP"' /etc/default/ufw 2>/dev/null && pass "UFW denies inbound by default" || fail "UFW inbound policy"
+ufw_status=""
+ufw_status_ok=false
+if [ "${EUID:-$(id -u)}" -eq 0 ]; then
+  if ufw_status="$(LC_ALL=C ufw status verbose 2>/dev/null)" && [ -n "$ufw_status" ]; then
+    ufw_status_ok=true
+  else
+    fail "UFW live status command failed"
+  fi
+elif sudo -n true 2>/dev/null; then
+  if ufw_status="$(sudo -n env LC_ALL=C ufw status verbose 2>/dev/null)" && [ -n "$ufw_status" ]; then
+    ufw_status_ok=true
+  else
+    fail "UFW live status command failed"
+  fi
+else
+  fail "UFW live status unavailable; run sudo -v before verification"
+fi
+
+if [ "$ufw_status_ok" = true ]; then
+  printf '%s\n' "$ufw_status" | grep -q '^Status: active' && pass "UFW live rules active" || fail "UFW live rules inactive"
+  printf '%s\n' "$ufw_status" | grep -q 'Default: deny (incoming)' && pass "UFW live policy denies inbound" || fail "UFW live inbound policy"
+fi
 systemctl --user is-active --quiet gcr-ssh-agent.socket && pass "GCR SSH socket active" || fail "GCR SSH socket inactive"
 [ -S "${SSH_AUTH_SOCK:-}" ] && pass "SSH_AUTH_SOCK valid" || fail "SSH_AUTH_SOCK invalid"
 

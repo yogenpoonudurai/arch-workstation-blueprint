@@ -1,0 +1,32 @@
+name: Hardware compatibility
+description: Report a working adaptation or hardware-specific failure
+title: "[Hardware]: "
+labels: [hardware]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Hardware model
+    validations:
+      required: true
+  - type: textarea
+    id: components
+    attributes:
+      label: Relevant components
+      description: CPU vendor, GPU, display outputs, Wi-Fi, audio, and firmware.
+    validations:
+      required: true
+  - type: textarea
+    id: changes
+    attributes:
+      label: Required changes
+      description: Describe adaptations without including identifiers or private network data.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: Kernel, suspend/resume, display, networking, audio, and verification results.
+    validations:
+      required: true

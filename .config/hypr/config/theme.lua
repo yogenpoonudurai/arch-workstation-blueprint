@@ -3,7 +3,7 @@
 -- It should set globals or return a table; we load it safely and fall back.
 
 local function load_generated()
-  local home = os.getenv("HOME") or "/home/yp"
+  local home = assert(os.getenv("HOME"), "HOME is required")
   local path = home .. "/.config/theme/colors-hypr.lua"
   local f = io.open(path, "r")
   if not f then return nil end

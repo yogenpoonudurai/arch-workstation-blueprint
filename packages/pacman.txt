@@ -1,7 +1,6 @@
 7zip
 adw-gtk-theme
 alacritty
-amd-ucode
 apparmor
 awww
 bacon
